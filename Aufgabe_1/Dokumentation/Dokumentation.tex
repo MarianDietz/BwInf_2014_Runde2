@@ -1,0 +1,43 @@
+\section{Aufgabe 1 - Buschfeuer}
+\subsection{Lösungsidee}
+
+Ein \emphpar{Feld} ist ein quadratisches Stück Land, welches genau einen folgender Zustände inne haben kann:
+\begin{itemize}
+\item[BRENNBAR] Das Stück Land ist ind der Lage, zu brennen.
+\item[BRENNEND] Ein brennendes Stück Land.
+\item[GELÖSCHT] Ein Stück Land, welches nie wieder brennen  wird.
+\item[LEER] Ein leeres Stück Land.
+\end{itemize}
+
+Alle Felder haben die selbe Fläche.
+
+Ein \emphpar{Wald} ist nun die rechteckig-gitterförmige Anordnung von $n\times m$ Feldern. Die \emphpar{Umgebung} $U(f)$ eines Feldes $f$ in einem Wald $W$ ist dabei die Menge an Feldern, welche in $W$ eine gemeinsame Kante mit $f$ haben.
+
+Der Wald wird nun diskret beobachtet. Es ist dabei sichergestellt, dass nur sofern ein Feld bei einer Beobachtung brennend ist, dieses und jedes brennbare Feld seiner Umgebung bei der nächsten Beobachtung brennen werden, sofern diese nicht schon brennen. Diese Eigenschaft des Waldes sei mit \emph{Feuerausbreitung} bezeichnet.
+
+Ab der 2. Beobachtung kann pro Beobachtung genau 1 (brennendes) Feld gelöscht werden. Wird ein brennendes Feld gelöscht, so fängt seine Umgebung bis zur nächsten Beobachtung nicht an zu brennen.\\
+Die erste Beobachtung, ab der ein Feld $f$ brennt, heiße \emph{Entflammung} von $f$.
+
+
+Ziel ist es nun, eine Folge von zu löschenden Feldern anzugeben, sodass bei deren Einhaltung die Anzahl der brennenden Felder minimiert wird.\\
+
+
+Im Folgenden seinen diejenigen Felder, welche bei mindestens 2 Beobachtungen brennend waren, als \emph{verkohlt} bezeichnet.\\
+Nach der Feuerausbreiteung muss jedes Feld der Umgebung eines verkohlten Feldes $c$ brennend sein oder gewesen sein oder seit der Entflammung von $c$ nicht brennbar gewesen sein.
+
+Sei nun zunächst der Fall betrachtet, dass nur brennende Feler gelöscht werden können.
+
+Es ist leicht zu erkennen, dass es die Lösung nicht verschlechtert, wenn ab der 2. Beobachtung bei jeder Beobachtung 1 brennendes Feld gelöscht wird. Daher wird im Folgenden davon ausgegangen, dass bei jeder Beobachtung (ab der 2.) 1 brennendes Feld gelöscht wird. Es gilt nun also für jede dieser Beobachtungen dasjenige brennende Feld zu finden, durch dessen Löschung die Anzahl der im Folgenden (nicht unbedingt umittelbar folgend) zu brennen anfangenden Felder minimiert.
+
+Sei nun eine Beobachtung fixiert.\\
+Nun soll für ein brennendes Feld $F$ ein Maß $\mu(F)$ dafür gefunden werden, mit dem bestimmt werden kann, welches Feld zum Löschen in obigem Sinne am Besten ist. Sei $\mu(F)$ daher die Anzahl der brennbaren Felder, zu denen $F$ das brennende Feld mit dem \emph{kürzesten Abstand} ist. Dieser kürzeste Abstand ist dabei die minimale Anzahl an Beobachtungen, bis das Feld anfängt zu brennen. (Unter der Annahme, dass keine weiteren Felder gelöscht werden.)\\
+Löscht man nun $F$, so wird der kürzeste Abstand aller Felder höchstens größer; bei allen Feldern, bei deren kürzestem Abstand $F$ jedoch keine Rolle spielte (bei denen der Abstand zu einem anderen brennenden Feld also kürzer oder gleich dem Abstand zu $F$ ist), tritt keine Veränderung auf.\\
+Für 2 Werte $\mu(F_1)$ und $\mu(F_2)$ gilt nun: ist $\mu(F_1) < \mu(F_2)$, so erzeugte $F_2$ bei mehr Feldern eine Vergrößerung des kürzesten Abstands als $F_1$.\\
+Die \emph{minimale Lebenszeit} eines Feldes sei nun eben der kürzeste Abstand zu einem brennenden Feld. Es ist leicht zu erkennen, dass nach mindesten so vielen Beobachtungen, wie die minimale Lebenszeit eines Feldes ist, das Feld zu brennen beginnt.\\
+$\mu(F)$ gibt also auch die Anzahl der Felder an, deren minimale Lebenszeit allein durch $F$ besitmmt ist. Löscht man $F$, so wird, wie schon gesehen, die minimale Lebenszeit all dieser Felder höchstens größer, es ist also am Besten, dasjenige Feld $F^\star$ zum Löschen auszuwählen, welches $\mu(\cdot)$ für alle aktuell brennenden Felder maximiert.
+
+Es gilt nun noch $\mu$ effizient zu bestimmen. Da ein Wald eine rechteckige Gitterform besitzt, ist der kürzeste Abstand zwischen 2 Feldern 1, ganau dann, wenn diese Felder eine gemeinsame Kante haben. Fasst man das Gitten nun als Graphen auf, wobei die Felder die Knoten sind und zwischen 2 Knoten eine Kante ist, genau dann wenn zwischen diesen Feldern eine Kante ist. Es nun offensichtlich, dass dieser Graph ungewichtet ist. Somit ist das Finden von kürzesten Abständen mittels einer Breitensuche möglich. Beim Zählen der Felder mit kürzestem Abstand is tdann jedoch darauf zu achten, dass diejenigen Felder, welche zu mehr als 1 Feld den kürzesten Abstand haben, nicht gezählt werden, da sich für diese Felder bei dieser Beobachtung garantiert keine Verbesserung ergibt.
+
+\subsection{Laufzeitanalyse}
+Eine Breitensuche hat eine Laufzeit von $\mathcal{O}(V + E)$ in einem Graphen mit $E$ Kanten und $V$ Knoten. Speziell hat der Graph bei dieser Aufgabe $n\cdot m$ Knoten und $(n-1)\cdot (m-1)$ Kanten; die Breitensuche hat also eine Laufzeit von $\mathcal{O}(n\cdot m)$.\\
+Eine Breitensuche wird nach obigem Algorithmus bei jeder der insgesamt $b$ Beobachtungen benötigt. Es ergibt sich eine Gesamtlaufzeit von $\mathcal{O}(n\cdot m \cdot b)$. Mit $b = \mathcal{O}(n\cdot m)$ ergibt sich eine (wohl sehr grobe) obere Schranke der Laufzeit von $\mathcal{O}(n^2 \cdot m^2)$.

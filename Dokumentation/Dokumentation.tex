@@ -1,0 +1,89 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[ngerman]{babel}
+\usepackage{ucs}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{fancyhdr}
+\usepackage{listings}
+\usepackage{multicol}
+%\usepackage[toc]{multitoc}
+%\renewcommand*{\multicolumntoc}{2}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks,
+    citecolor=black,
+    filecolor=black,
+    linkcolor=Mahogany,
+    urlcolor=black
+}
+
+\setlength{\textwidth}{16cm}
+\setlength{\textheight}{25.7cm}
+\setlength{\topmargin}{-1.7cm}
+\setlength{\evensidemargin}{-8mm}
+\setlength{\oddsidemargin}{-8mm}
+\parskip 6pt plus 1pt minus 1pt
+\parindent0pt
+\pagestyle{fancy}
+
+\lhead{\bfseries BWINF '13/'14}
+\chead{Philip Wellnitz}
+\rhead{Einsendungsnummer (850.01)}
+\lfoot{\leftmark}
+\cfoot{}
+\rfoot{\thepage}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\footrulewidth}{0.5pt}
+
+\usepackage{csquotes}
+\usepackage[usenames,dvipsnames,svgnames,table]{xcolor}
+\definecolor{bluekeywords}{rgb}{0.13,0.13,1}
+\definecolor{greencomments}{rgb}{0,0.5,0}
+\definecolor{redstrings}{rgb}{0.9,0,0}
+\lstset{language=C++,
+numbers=left,
+stepnumber=1,
+showspaces=false,
+showtabs=false,
+breaklines=true,
+showstringspaces=false,
+breakatwhitespace=true,
+escapeinside={(*@}{@*)},
+commentstyle=\color{greencomments},
+keywordstyle=\color{bluekeywords}\bfseries,
+stringstyle=\color{redstrings},
+basicstyle=\ttfamily,
+moredelim=**[is][\color{brown}]{@}{@},
+moredelim=**[is][\color{purple}]{§}{§},
+moredelim=**[is][\color{Mahogany}]{§§}{§§},
+moredelim=**[is][\color{greencomments}]{§§§}{§§§}
+}
+\lstset{literate=%
+{Ö}{{\"O}}1
+{Ä}{{\"A}}1
+{Ü}{{\"U}}1
+{ß}{{\ss}}2
+{ü}{{\"u}}1
+{ä}{{\"a}}1
+{ö}{{\"o}}1
+}
+\newcommand{\emphpar}[1]{\emph{#1}\marginpar[#1]{#1}\index{#1}}
+\newcommand{\emphparr}[1]{\emph{#1}\marginpar[#1]{#1}}
+
+\title{32. Bundeswettbewerb Informatik, Runde 2\\ \small{Ausarbeitungen zu den Aufgaben \enquote{Buschfeuer} und \enquote{Lebenslinien} }}
+\author{Philip Wellnitz}
+\date{}
+
+\begin{document}
+\thispagestyle{empty}
+\maketitle
+\newpage
+\tableofcontents
+\newpage
+\input{../Aufgabe_1/Dokumentation/Dokumentation.tex}
+\newpage
+%\input{../Aufgabe_2/Dokumentation/Dokumentation.tex}
+\newpage
+\end{document} 
