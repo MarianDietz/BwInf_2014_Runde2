@@ -3,6 +3,7 @@
 #include <queue>
 #include <set>
 #include <string>
+#include <cstring>
 using namespace std;
 
 typedef pair<int,int> PII;
@@ -50,6 +51,9 @@ int dir[4][2] = {{1,0},{0,1},{-1,0},{0,-1}};
 
 vector<Point> Solution;
 FILE* OUT;                                                  // The file to mirror the output to
+void (*printField)(FIELDSTATE, int, FILE*);
+const char* (*EOL)();
+void (*printLegend)(FILE*);
 
 Point getOptimalWaterSpot(vector<Point>& candidates){
   queue<pair<PII,Point> > q;                                // ((distance | color) | Location)
@@ -110,6 +114,7 @@ Point getOptimalWaterSpot(vector<Point>& candidates){
   return candidates[maxi];
 }
 
+//INPUT
 void parseInput(FILE* f) {
   int acFieldWidth, acFieldHeight;
   fscanf(f, "%i %i\n",&acFieldWidth, &acFieldHeight);
@@ -127,44 +132,100 @@ void parseInput(FILE* f) {
       fscanf(f, "\n");
   }
 }
-void printSolution(FILE* f, bool finalOut = true) {	
-  //The ASCII-magic strarts here:
-  
-  fprintf(f, "\x1b[s");
-  
+
+//OUTPUT
+void printField_TERMINAL(FIELDSTATE acField, int waternum, FILE* f) {
+  //The ASCII-magic starts here:
+  fprintf(f, "\x1b[s  ");
+  if (acField == WALL)
+    fprintf(f, "\x1b[u\x1b[37;47m[]");
+  if (acField & WOODS)
+    fprintf(f, "\x1b[u\x1b[32;42mFO");
+  if (acField & BURNED)
+    fprintf(f, "\x1b[u\x1b[1;5;31m/\\");
+  if (acField & COAL)
+    fprintf(f, "\x1b[u\x1b[1;4;5;30m/\\");
+  if (acField & WATERED) 
+    fprintf(f, "\x1b[u\x1b[46m%02d", waternum);
+  fprintf(f, "\x1b[0;39;49m");
+}
+void printLegend_TERMINAL(FILE* f) {
+  fprintf(f, "\nLegend:");
+  fprintf(f, "\n\x1b[37;47m[]\x1b[39;49m  ---  WALL");
+  fprintf(f, "\n\x1b[32;42mFO\x1b[39;49m  ---  FOREST");
+  fprintf(f, "\n\x1b[1;5;31m/\\\x1b[0;39m  ---  BURNED");
+  fprintf(f, "\n\x1b[1;4;5;30m/\\\x1b[0;39m  ---  COAL (doubly burned)");
+  fprintf(f, "\n\x1b[46m##\x1b[0;39m  ---  WATERED");
+  fprintf(f, "\nFields can have more than 1 state.");
+}
+const char* EOL_TERMINAL() {return "\n"; }
+
+void printField_TEX(FIELDSTATE acField,int waternum, FILE* f){
+  if(acField == WALL)
+    fprintf(f, "\\colorbox{\\color[gray]{0.5}}{");
+  else if(acField & WOODS)
+    fprintf(f, "\\colorbox{\\color[rgb]{0,1,0}}{");
+  else
+    fprintf(f, "{");
+     
+  if(acField & COAL)
+    fprintf(f, "\\color[rgb]{0,0,0}");
+  else if(acField & BURNED)
+    fprintf(f, "\\color[rgb]{1,0,0}");
+  else if(acField == WALL)
+    fprintf(f, "\\color[gray]{0.5}");
+  else if(acField & WOODS)
+    fprintf(f, "\\color[rgb]{0,1,0}");
+  else if(acField & WATERED)
+    fprintf(f, "\\color[rgb]{0,0,1}");
+    
+  if(acField & WATERED)
+    fprintf(f, "%02d",waternum);
+  else if(acField & BURNED)
+    fprintf(f, "/\\backslash");
+  else if(acField & COAL)
+    fprintf(f, "\\underline{/\\backslash}");
+  else if(acField == WALL)
+    fprintf(f, "[]");
+  else if(acField & WOODS)
+    fprintf(f, "FO");
+  else
+    fprintf(f, "--");
+  fprintf(f, "}\n");
+}
+void printLegend_TEX(FILE* f) {
+  fprintf(f, "\\\\Legend:");
+  fprintf(f, "\\\\\\colorbox{\\color[gray]{0.5}}{\\color[gray]{0.5}[]}  ---  WALL");
+  fprintf(f, "\\\\\\colorbox{\\color[rgb]{0,1,0}}{\\color[rgb]{0,1,0}FO}  ---  FOREST");
+  fprintf(f, "\\\\{\\color[rgb]{1,0,0}/\\backslash}  ---  BURNED");
+  fprintf(f, "\\\\{\\color[rgb]{0,0,0}\\underline{/\\backslash}}  ---  COAL (doubly burned)");
+  fprintf(f, "\\\\{\\color[rgb]{0,0,1}##}  ---  WATERED");
+  fprintf(f, "\\\\Fields can have more than 1 state.");
+}
+const char* EOL_TEX() {return "\\\\\n"; }
+
+void printSolution(FILE* f, void (*printField)(FIELDSTATE, int, FILE*), const char* (*EOL)(), void (*printLegend)(FILE*), bool finalOut = true) {	
+    
   for(int j= 0; j < Forest.height(); ++j) {
     for(int i= 0; i < Forest.width(); ++i) {
       FIELDSTATE acField = Forest(i, j);
-      fprintf(f, "\x1b[s  ");
-      if (acField == WALL)
-	fprintf(f, "\x1b[u\x1b[47m  ");
-      if (acField & WOODS)
-	fprintf(f, "\x1b[u\x1b[42m  ");
-      if (acField & BURNED)
-	fprintf(f, "\x1b[u\x1b[1;5;31m/\\");
-      if (acField & COAL)
-	fprintf(f, "\x1b[u\x1b[1;4;5;30m/\\");
+      int waterval = 0;
       if (acField & WATERED) {
 	for (int t = 0; t < Solution.size(); ++t)
 	  if (Solution[t].x == i && Solution[t].y == j) {
-	    fprintf(f, "\x1b[u\x1b[46m%02d", (t+1));
+	    waterval = t+1;
 	    break;
 	  }
       }
-	
-      fprintf(f, "\x1b[0;39;49m");
+      printField(acField, waterval, f);
     }
-    fprintf(f, "\n");
+   
+    fprintf(f, "%s", EOL());
   }
-  if (finalOut) {
-    fprintf(f, "\n\x1b[47m  \x1b[49m  ---  WALL");
-    fprintf(f, "\n\x1b[42m  \x1b[49m  ---  FOREST");
-    fprintf(f, "\n\x1b[1;5;31m/\\\x1b[0;39m  ---  BURNED");
-    fprintf(f, "\n\x1b[1;4;5;30m/\\\x1b[0;39m  ---  COAL (doubly burned)");
-    fprintf(f, "\n\x1b[46m##\x1b[0;39m  ---  WATERED");
-    fprintf(f, "\nFields can have more than 1 state.");
-  }
-  fprintf(f, "\n");
+  
+  if (finalOut) 
+    printLegend(f);
+  fprintf(f, "%s", EOL());
 }
 
 vector<Point>& getInitialBurningFields() {
@@ -181,9 +242,9 @@ vector<Point>& getInitialBurningFields() {
   
 void simulateFire(const vector<Point>& initiallyBurningFields, bool waterOnlyBurningFields = true) {
   vector<Point> burnedFields = initiallyBurningFields;
-  printSolution(stdout, false);
+  printSolution(stdout, printField_TERMINAL, EOL_TERMINAL, printLegend_TERMINAL, false);
   if (OUT != 0)
-    printSolution(OUT, false);
+    printSolution(OUT, printField, EOL, printLegend, false);
   
   int time = 0;
   while(!burnedFields.empty()) {                            // Simulate as long as there's still fire in the world
@@ -223,11 +284,11 @@ void simulateFire(const vector<Point>& initiallyBurningFields, bool waterOnlyBur
     
     //Output / mirror the partial solution
     printf("At time %i: Water spot (%i|%i):\n",++time,toWater.x,toWater.y);
-    printSolution(stdout, false);
+    printSolution(stdout, printField_TERMINAL, EOL_TERMINAL, printLegend_TERMINAL, false);
     
     if (OUT) {
       fprintf(OUT, "At time %i: Water spot (%i|%i):\n",++time,toWater.x,toWater.y);
-      printSolution(OUT, false);
+      printSolution(OUT, printField, EOL, printLegend, false);
     }
 
   }
@@ -244,10 +305,10 @@ void simulateFire(const vector<Point>& initiallyBurningFields, bool waterOnlyBur
 	
   //Output / Mirror the solution
   printf("And you'll find %i pieces of coal and %i pieces of watered coal:\n",ccnt,wcnt);  
-  printSolution(stdout);
+  printSolution(stdout, printField_TERMINAL, EOL_TERMINAL, printLegend_TERMINAL);
   if (OUT) {
     fprintf(OUT, "And you'll find %i pieces of coal and %i pieces of watered coal:\n",ccnt,wcnt);
-    printSolution(OUT);
+    printSolution(OUT,  printField, EOL, printLegend);
   }
 }
   
@@ -258,10 +319,25 @@ int main(int argc, char** argv){
   }
   if (argc > 2){
     printf("Mirroring output to %s.\n", argv[2]);
+    if (strstr(argv[2], ".tex")) {
+      printf("I reckon you want me to produce some TeX stuff...\n");
+      EOL = EOL_TEX;
+      printField = printField_TEX;
+      printLegend = printLegend_TEX;
+    }
+    else{
+      EOL = EOL_TERMINAL;
+      printField = printField_TERMINAL;
+      printLegend = printLegend_TERMINAL;
+    }
     OUT = fopen(argv[2],"w");
   }
-  else
+  else{
     OUT = 0;
+    EOL = EOL_TERMINAL;
+    printField = printField_TERMINAL;
+    printLegend = printLegend_TERMINAL;
+  }
 
   parseInput(stdin);
   simulateFire(getInitialBurningFields());
