@@ -2,11 +2,11 @@
 #include <vector>
 #include <queue>
 #include <set>
+#include <string>
 using namespace std;
 
 typedef pair<int,int> PII;
 
-const int MAXS = 100; //max size of the field
 #define FIELDSTATE 	char
 #define WALL		0
 #define WOODS		1
@@ -14,121 +14,255 @@ const int MAXS = 100; //max size of the field
 #define WATERED		4
 #define COAL		8
 
-FIELDSTATE field[MAXS][MAXS];
+const int oo = (1 << 29);                                   // The infinity
 
-const int oo = (1 << 29);
-
-int N, M; //fieldsize
+class Woods{
+private:
+  int Width, Height;
+  vector<vector<FIELDSTATE> > Fields;
+  
+public:
+  Woods(int width, int height) : Width(width), Height(height) {
+    Fields.assign(height, vector<FIELDSTATE>(width, 0));
+  }
+  
+  int width() const { return Width; }
+  int height() const { return Height; }
+  
+  FIELDSTATE& operator() (int x, int y) {
+    if (x < 0 || y < 0 || x >= width() || y >= height())
+      printf("OUT OF BOUNDS 1");
+    return Fields[y][x];
+  }
+  FIELDSTATE operator() (int x,  int y) const {
+    if (x < 0 || y < 0 || x >= width() || y >= height())
+      printf("OUT OF BOUNDS 2");
+    return Fields[y][x];
+  }
+} Forest(0, 0);
 
 struct Point {
 public:
   int x, y; 
   Point(int _x,int _y) : x(_x), y(_y) { }
-};
+  };
 int dir[4][2] = {{1,0},{0,1},{-1,0},{0,-1}};
 
-Point getOptimalWaterSpot(vector<Point>& points){
-  queue<pair<PII,Point> > q;//((distance | color) | Location)
-  for(int i= 0; i < points.size(); ++i)
-    q.push(pair<PII,Point>(PII(0,i),points[i]));
-  
-  vector<vector<set<int> > > visited(N,vector<set<int> >(M));
-  vector<vector<int> > shortDis(N,vector<int>(M,oo));
-  
+vector<Point> Solution;
+FILE* OUT;                                                  // The file to mirror the output to
+
+Point getOptimalWaterSpot(vector<Point>& candidates){
+  queue<pair<PII,Point> > q;                                // ((distance | color) | Location)
+  for(int i= 0; i < candidates.size(); ++i)
+    q.push(pair<PII,Point>(PII(0,i),candidates[i]));        // insert all the candidates as start points for the BFS
+
+  vector<vector<set<int> > > visited(Forest.width(),       // remember all nearest points first
+    vector<set<int> >(Forest.height()));
+  vector<vector<int> > shortDis(Forest.width(),            // shortest distant to any burning field
+    vector<int>(Forest.height(),oo));
+
+  //BFS to calculate shortest paths
   while(!q.empty()){
     pair<PII,Point> ac = q.front();
     Point acPoint = ac.second;
     int acDistance = ac.first.first;
     int acColor = ac.first.second;
-    
+
     visited[acPoint.x][acPoint.y].insert(acColor);
-    
+
     q.pop();
     for(int i= 0; i < 4; ++i){
-      int newx = acPoint.x + dir[i][0], newy = acPoint.y + dir[i][1];
-      if(newx < 0 || newy < 0 || newx >= N || newy >= M)
-	continue;
-      if (field[newx][newy] != WOODS)
-	continue; //Field is not of interest
-      if(visited[newx][newy].count(acColor) == 0) 
+      int newx = acPoint.x + dir[i][0];
+      int newy = acPoint.y + dir[i][1];                     // calculate new field's indexes
+      
+      if(newx < 0 || newy < 0 || newy >= Forest.height() || newx >= Forest.width())
+	continue;                                           // new field is outside the woods
+      if (Forest(newx, newy) != WOODS)
+	continue;                                           // Field is not of interest
+	
+      if(visited[newx][newy].count(acColor) == 0)
 	if(acDistance + 1 <= shortDis[newx][newy]){
 	  shortDis[newx][newy] = acDistance + 1;
 	  q.push(pair<PII,Point>(PII(acDistance + 1,acColor),Point(newx,newy)));
 	}
     }
   }
-  
-  vector<int> waterval(N,0);
-  
-  for(int i= 0; i< N; ++i)
-    for(int j= 0; j < M; ++j)
+
+  //determine the field to be watered
+  vector<int> waterval(candidates.size(),0);
+
+  //Count the number of fields that have an unique fire spot a.k.a. waterval
+  for(int i= 0; i< Forest.width(); ++i)
+    for(int j= 0; j < Forest.height(); ++j)
       if(visited[i][j].size() == 1)
 	waterval[*visited[i][j].begin()]++;
-  int maxv = waterval[0],maxi = 0;
-  for(int i= 1; i < N; ++i)
+	
+  //determine the field of the candidates which has the highest waterval
+  int maxv = waterval[0];                                   // maximal value
+  int maxi = 0;                                             // index of maximal value
+  
+  for(int i= 1; i < candidates.size(); ++i)
     if(waterval[i] > maxv){
       maxv = waterval[i];
       maxi = i;
     }
-  return points[maxi];
+    
+  return candidates[maxi];
 }
 
-int main(){
-//   freopen("test.in","r",stdin);
-//   freopen("test.out","w",stdout);
+void parseInput(FILE* f) {
+  int acFieldWidth, acFieldHeight;
+  fscanf(f, "%i %i\n",&acFieldWidth, &acFieldHeight);
   
-  vector<Point> burnedFields; //Actuel burning fields
-  
-  //read input
-  scanf("%i %i\n",&N,&M);
-  for(int i = 0; i < N; ++i){
-    for(int j= 0; j < M; ++j){
+  Forest = Woods(acFieldWidth, acFieldHeight);
+
+  for(int i = 0; i < acFieldHeight; ++i){
+    for(int j= 0; j < acFieldWidth; ++j){
       char c;
-      scanf("%c",&c);
+      fscanf(f, "%c",&c);
       c -= '0';
-      field[i][j] = (FIELDSTATE) c;
-      if(field[i][j] == BURNED){
-	burnedFields.push_back(Point(i,j));
- 	printf("Initially burning: (%i|%i)\n",i,j);
+      Forest(j, i) = (FIELDSTATE) c;
+    }
+    if(i < acFieldHeight-1)
+      fscanf(f, "\n");
+  }
+}
+void printSolution(FILE* f, bool finalOut = true) {	
+  //The ASCII-magic strarts here:
+  
+  fprintf(f, "\x1b[s");
+  
+  for(int j= 0; j < Forest.height(); ++j) {
+    for(int i= 0; i < Forest.width(); ++i) {
+      FIELDSTATE acField = Forest(i, j);
+      fprintf(f, "\x1b[s  ");
+      if (acField == WALL)
+	fprintf(f, "\x1b[u\x1b[47m  ");
+      if (acField & WOODS)
+	fprintf(f, "\x1b[u\x1b[42m  ");
+      if (acField & BURNED)
+	fprintf(f, "\x1b[u\x1b[1;5;31m/\\");
+      if (acField & COAL)
+	fprintf(f, "\x1b[u\x1b[1;4;5;30m/\\");
+      if (acField & WATERED) {
+	for (int t = 0; t < Solution.size(); ++t)
+	  if (Solution[t].x == i && Solution[t].y == j) {
+	    fprintf(f, "\x1b[u\x1b[46m%02d", (t+1));
+	    break;
+	  }
+      }
+	
+      fprintf(f, "\x1b[0;39;49m");
+    }
+    fprintf(f, "\n");
+  }
+  if (finalOut) {
+    fprintf(f, "\n\x1b[47m  \x1b[49m  ---  WALL");
+    fprintf(f, "\n\x1b[42m  \x1b[49m  ---  FOREST");
+    fprintf(f, "\n\x1b[1;5;31m/\\\x1b[0;39m  ---  BURNED");
+    fprintf(f, "\n\x1b[1;4;5;30m/\\\x1b[0;39m  ---  COAL (doubly burned)");
+    fprintf(f, "\n\x1b[46m##\x1b[0;39m  ---  WATERED");
+    fprintf(f, "\nFields can have more than 1 state.");
+  }
+  fprintf(f, "\n");
+}
+
+vector<Point>& getInitialBurningFields() {
+  static vector<Point> burnedFields;
+  
+  for(int i = 0; i < Forest.height(); ++i)
+    for(int j= 0; j < Forest.width(); ++j)
+      if(Forest(j, i) & BURNED){
+	burnedFields.push_back(Point(j, i));
+// 	printf("Initially burning: (%i|%i)\n",j, i);
+      }
+  return burnedFields;
+}
+  
+void simulateFire(const vector<Point>& initiallyBurningFields, bool waterOnlyBurningFields = true) {
+  vector<Point> burnedFields = initiallyBurningFields;
+  printSolution(stdout, false);
+  if (OUT != 0)
+    printSolution(OUT, false);
+  
+  int time = 0;
+  while(!burnedFields.empty()) {                            // Simulate as long as there's still fire in the world
+    vector<Point> newBurnedFields;                          // The burning fields at the next point of time
+    
+    //Calculate the new burning fields
+    for(size_t i = 0; i < burnedFields.size(); ++i){
+      int acx = burnedFields[i].x;
+      int acy = burnedFields[i].y;
+      
+      if(Forest(acx, acy) & WATERED)
+	continue;                                           // The field got watered and does not spread fire
+      Forest(acx, acy) |= COAL;                             // Field burned down to coal...
+
+      for(int j = 0; j < 4; ++j) {
+	int newx = acx + dir[j][0];
+	int newy = acy + dir[j][1];
+	
+	if(newx < 0 || newy < 0 || newy >= Forest.height() || newx >= Forest.width())
+	  continue;                                         // new field is outside the woods
+	if(Forest(newx, newy) == WOODS){
+	  Forest(newx, newy) |= BURNED;                     // Field starts burning
+	  newBurnedFields.push_back(Point(newx,newy));
+	  
+// 	  printf("  From now on burning: (%i|%i)\n",newx,newy);     // log the happenings
+	}
       }
     }
-    if(i < N-1)
-      scanf("\n");
-  }
-  //end of read input
-  int time = 0;
-  while(!burnedFields.empty()){
-    vector<Point> newBurnedFields;
-    for(size_t i = 0; i < burnedFields.size(); ++i){
-      int acx = burnedFields[i].x, acy = burnedFields[i].y;
-      if(field[acx][acy] & WATERED)
-	continue;
-      field[acx][acy] |= COAL;
-      
-      for(int j = 0; j < 4; ++j)
-	if(field[acx + dir[j][0]][acy+dir[j][1]] == WOODS){
-	  field[acx + dir[j][0]][acy+dir[j][1]] = BURNED; //Field starts burning
-	  newBurnedFields.push_back(Point(acx + dir[j][0],acy + dir[j][1]));
-	  printf(" From now on burning: (%i|%i)\n",acx + dir[j][0],acy + dir[j][1]);
-	}
-    }
-    if(newBurnedFields.empty()) //Nothing to water, all plants happy...
-      break;
-    Point toWater = getOptimalWaterSpot(newBurnedFields);
-    field[toWater.x][toWater.y] |= WATERED;
-    
-    printf("At time %i: Water spot (%i|%i).\n",++time,toWater.x,toWater.y);
+    if(newBurnedFields.empty())                             // Nothing to water, all plants happy...
+	break;
+	
+    Point toWater = getOptimalWaterSpot(newBurnedFields);   // Determine the field to water
+    Forest(toWater.x, toWater.y) |= WATERED;                // ... and water it
+    Solution.push_back(toWater);
     
     burnedFields = newBurnedFields;
+    
+    //Output / mirror the partial solution
+    printf("At time %i: Water spot (%i|%i):\n",++time,toWater.x,toWater.y);
+    printSolution(stdout, false);
+    
+    if (OUT) {
+      fprintf(OUT, "At time %i: Water spot (%i|%i):\n",++time,toWater.x,toWater.y);
+      printSolution(OUT, false);
+    }
+
   }
-  printf("Fire died.\n");
+//   printf("Fire died.\n");
   
+  //Count the total number of burned or coaled
   int wcnt = 0, ccnt = 0;
-  for(int i= 0; i < N; ++i)
-    for(int j= 0; j < M; ++j)
-      if(field[i][j] & WATERED)
+  for(int i= 0; i < Forest.width(); ++i)
+    for(int j= 0; j < Forest.height(); ++j)
+      if(Forest(i, j) & WATERED)
 	wcnt++;
-      else if(field[i][j] & COAL)
+      else if(Forest(i, j) & COAL)
 	ccnt++;
-  printf("You found %i pieces of coal and %i pieces of watered coal.\n",ccnt,wcnt);
+	
+  //Output / Mirror the solution
+  printf("And you'll find %i pieces of coal and %i pieces of watered coal:\n",ccnt,wcnt);  
+  printSolution(stdout);
+  if (OUT) {
+    fprintf(OUT, "And you'll find %i pieces of coal and %i pieces of watered coal:\n",ccnt,wcnt);
+    printSolution(OUT);
+  }
+}
+  
+int main(int argc, char** argv){
+  if (argc > 1) {
+    freopen(argv[1],"r",stdin);
+    printf("Using %s as input.\n", argv[1]);
+  }
+  if (argc > 2){
+    printf("Mirroring output to %s.\n", argv[2]);
+    OUT = fopen(argv[2],"w");
+  }
+  else
+    OUT = 0;
+
+  parseInput(stdin);
+  simulateFire(getInitialBurningFields());
 }
