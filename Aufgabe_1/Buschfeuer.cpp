@@ -15,7 +15,7 @@ typedef pair<int,int> PII;
 #define WATERED		4
 #define COAL		8
 
-const int oo = (1 << 29);                                   // The infinity
+const int oo = (1 << 29);                                  // The infinity
 
 class Woods{
 private:
@@ -50,15 +50,13 @@ public:
 int dir[4][2] = {{1,0},{0,1},{-1,0},{0,-1}};
 
 vector<Point> Solution;
-FILE* OUT;                                                  // The file to mirror the output to
-void (*printField)(FIELDSTATE, int, FILE*);
-const char* (*EOL)();
-void (*printLegend)(FILE*);
+FILE* OUT;                                                 // The file to mirror the output to
+void (*printSolution)(FILE*, bool);
 
 Point getOptimalWaterSpot(vector<Point>& candidates){
-  queue<pair<PII,Point> > q;                                // ((distance | color) | Location)
+  queue<pair<PII,Point> > q;                               // ((distance | color) | Location)
   for(int i= 0; i < candidates.size(); ++i)
-    q.push(pair<PII,Point>(PII(0,i),candidates[i]));        // insert all the candidates as start points for the BFS
+    q.push(pair<PII,Point>(PII(0,i),candidates[i]));       // insert all the candidates as start points for the BFS
 
   vector<vector<set<int> > > visited(Forest.width(),       // remember all nearest points first
     vector<set<int> >(Forest.height()));
@@ -72,9 +70,11 @@ Point getOptimalWaterSpot(vector<Point>& candidates){
     int acDistance = ac.first.first;
     int acColor = ac.first.second;
 
+    q.pop();
+    if(visited[acPoint.x][acPoint.y].count(acColor))
+      continue;
     visited[acPoint.x][acPoint.y].insert(acColor);
 
-    q.pop();
     for(int i= 0; i < 4; ++i){
       int newx = acPoint.x + dir[i][0];
       int newy = acPoint.y + dir[i][1];                     // calculate new field's indexes
@@ -84,7 +84,7 @@ Point getOptimalWaterSpot(vector<Point>& candidates){
       if (Forest(newx, newy) != WOODS)
 	continue;                                           // Field is not of interest
 	
-      if(visited[newx][newy].count(acColor) == 0)
+      if(visited[newx][newy].count(acColor) == 0)           // Don't compute things twice
 	if(acDistance + 1 <= shortDis[newx][newy]){
 	  shortDis[newx][newy] = acDistance + 1;
 	  q.push(pair<PII,Point>(PII(acDistance + 1,acColor),Point(newx,newy)));
@@ -102,8 +102,8 @@ Point getOptimalWaterSpot(vector<Point>& candidates){
 	waterval[*visited[i][j].begin()]++;
 	
   //determine the field of the candidates which has the highest waterval
-  int maxv = waterval[0];                                   // maximal value
-  int maxi = 0;                                             // index of maximal value
+  int maxv = waterval[0];                                  // maximal value
+  int maxi = 0;                                            // index of maximal value
   
   for(int i= 1; i < candidates.size(); ++i)
     if(waterval[i] > maxv){
@@ -114,7 +114,7 @@ Point getOptimalWaterSpot(vector<Point>& candidates){
   return candidates[maxi];
 }
 
-//INPUT
+//BEGIN OF INPUT
 void parseInput(FILE* f) {
   int acFieldWidth, acFieldHeight;
   fscanf(f, "%i %i\n",&acFieldWidth, &acFieldHeight);
@@ -132,101 +132,127 @@ void parseInput(FILE* f) {
       fscanf(f, "\n");
   }
 }
-
-//OUTPUT
-void printField_TERMINAL(FIELDSTATE acField, int waternum, FILE* f) {
-  //The ASCII-magic starts here:
-  fprintf(f, "\x1b[s  ");
-  if (acField == WALL)
-    fprintf(f, "\x1b[u\x1b[37;47m[]");
-  if (acField & WOODS)
-    fprintf(f, "\x1b[u\x1b[32;42mFO");
-  if (acField & BURNED)
-    fprintf(f, "\x1b[u\x1b[1;5;31m/\\");
-  if (acField & COAL)
-    fprintf(f, "\x1b[u\x1b[1;4;5;30m/\\");
-  if (acField & WATERED) 
-    fprintf(f, "\x1b[u\x1b[46m%02d", waternum);
-  fprintf(f, "\x1b[0;39;49m");
-}
-void printLegend_TERMINAL(FILE* f) {
-  fprintf(f, "\nLegend:");
-  fprintf(f, "\n\x1b[37;47m[]\x1b[39;49m  ---  WALL");
-  fprintf(f, "\n\x1b[32;42mFO\x1b[39;49m  ---  FOREST");
-  fprintf(f, "\n\x1b[1;5;31m/\\\x1b[0;39m  ---  BURNED");
-  fprintf(f, "\n\x1b[1;4;5;30m/\\\x1b[0;39m  ---  COAL (doubly burned)");
-  fprintf(f, "\n\x1b[46m##\x1b[0;39m  ---  WATERED");
-  fprintf(f, "\nFields can have more than 1 state.");
-}
-const char* EOL_TERMINAL() {return "\n"; }
-
-void printField_TEX(FIELDSTATE acField,int waternum, FILE* f){
-  if(acField == WALL)
-    fprintf(f, "\\colorbox{\\color[gray]{0.5}}{");
-  else if(acField & WOODS)
-    fprintf(f, "\\colorbox{\\color[rgb]{0,1,0}}{");
-  else
-    fprintf(f, "{");
-     
-  if(acField & COAL)
-    fprintf(f, "\\color[rgb]{0,0,0}");
-  else if(acField & BURNED)
-    fprintf(f, "\\color[rgb]{1,0,0}");
-  else if(acField == WALL)
-    fprintf(f, "\\color[gray]{0.5}");
-  else if(acField & WOODS)
-    fprintf(f, "\\color[rgb]{0,1,0}");
-  else if(acField & WATERED)
-    fprintf(f, "\\color[rgb]{0,0,1}");
-    
-  if(acField & WATERED)
-    fprintf(f, "%02d",waternum);
-  else if(acField & BURNED)
-    fprintf(f, "/\\backslash");
-  else if(acField & COAL)
-    fprintf(f, "\\underline{/\\backslash}");
-  else if(acField == WALL)
-    fprintf(f, "[]");
-  else if(acField & WOODS)
-    fprintf(f, "FO");
-  else
-    fprintf(f, "--");
+//END OF INPUT
+//BEGIN OF OUTPUT
+void printSolution_TEX(FILE* f, bool finalOut) {	
+  fprintf(f, "\\\\\n");
+  
+  fprintf(f, "\\begin{tikzpicture}\n");
+  fprintf(f, "\\tikzset{square matrix/.style={\n");
+  fprintf(f, "matrix of nodes,\n");
+  fprintf(f, "column sep=-\\pgflinewidth, row sep=-\\pgflinewidth,\n");
+  fprintf(f, "nodes={draw,\n");
+  fprintf(f, "minimum height=#1,\n");
+  fprintf(f, "anchor=center,\n");
+  fprintf(f, "text width=#1,\n");
+  fprintf(f, "align=center,\n");
+  fprintf(f, "inner sep=0pt\n");
+  fprintf(f, "},\n");
+  fprintf(f, "},\n");
+  fprintf(f, "square matrix/.default=1.2cm\n");
   fprintf(f, "}\n");
+  
+  fprintf(f, "\\matrix[square matrix=1.4em] {\n");
+  for(int j= 0; j < Forest.height(); ++j) {
+    for(int i= 0; i < Forest.width(); ++i) {
+      if(i)
+	fprintf(f," &");
+      
+        FIELDSTATE acField = Forest(i, j);
+	if(acField == WALL)
+	  fprintf(f, "|[fill=white]|");
+	else if(acField & WATERED)
+	  fprintf(f, "|[fill=cyan]|");
+	else if(acField & WOODS)
+	  fprintf(f, "|[fill=green]|");
+	  
+	if(acField & COAL)
+	  fprintf(f, "\\color[rgb]{0,0,0}");
+	else if(acField & BURNED)
+	  fprintf(f, "\\color[rgb]{1,0,0}");
+	else if(acField == WALL)
+	  fprintf(f, "\\color[gray]{0.5}");
+	else if(acField & WOODS)
+	  fprintf(f, "\\color[gray]{0.75}");
+	  
+	if(acField & WATERED){
+	  for (int t = 0; t < Solution.size(); ++t)
+	    if (Solution[t].x == i && Solution[t].y == j) {
+	      fprintf(f, "\\textbf{%02d}",t+1);
+	      break;
+	    }	  
+	}
+	else if(acField & COAL)
+	  fprintf(f, "\\textbf{CO}");
+	else if(acField & BURNED)
+	  fprintf(f, "\\textbf{BU}");
+	else if(acField == WALL)
+	  fprintf(f, "WA");
+	else if(acField & WOODS)
+	  fprintf(f, " FO");
+	else
+	  fprintf(f, "\\phantom{AA}");
+      fprintf(f, "%%\n");
+    }
+   
+    fprintf(f, "\\\\\n");
+  }
+  
+  fprintf(f, "};\n\\end{tikzpicture}\\\\\n");
+  
+  if(finalOut){
+    fprintf(f, "\\\\\nExplanation:");
+    fprintf(f, "\\\\\n\\colorbox{white}{\\color[gray]{0.5}WA}  ---  WALL");
+    fprintf(f, "\\\\\n\\colorbox{green}{\\color[gray]{0.5}FO}  ---  FOREST");
+    fprintf(f, "\\\\\n{\\color[rgb]{1,0,0}\\textbf{BU}}  ---  BURNED");
+    fprintf(f, "\\\\\n{\\color[rgb]{0,0,0}\\textbf{CO}}  ---  COAL (doubly burned)");
+    fprintf(f, "\\\\\n\\colorbox{cyan}{\\#\\#}  ---  WATERED at time \\#\\#");
+    fprintf(f, "\\\\\nFields can have more than 1 state.");
+  }
 }
-void printLegend_TEX(FILE* f) {
-  fprintf(f, "\\\\Legend:");
-  fprintf(f, "\\\\\\colorbox{\\color[gray]{0.5}}{\\color[gray]{0.5}[]}  ---  WALL");
-  fprintf(f, "\\\\\\colorbox{\\color[rgb]{0,1,0}}{\\color[rgb]{0,1,0}FO}  ---  FOREST");
-  fprintf(f, "\\\\{\\color[rgb]{1,0,0}/\\backslash}  ---  BURNED");
-  fprintf(f, "\\\\{\\color[rgb]{0,0,0}\\underline{/\\backslash}}  ---  COAL (doubly burned)");
-  fprintf(f, "\\\\{\\color[rgb]{0,0,1}##}  ---  WATERED");
-  fprintf(f, "\\\\Fields can have more than 1 state.");
-}
-const char* EOL_TEX() {return "\\\\\n"; }
 
-void printSolution(FILE* f, void (*printField)(FIELDSTATE, int, FILE*), const char* (*EOL)(), void (*printLegend)(FILE*), bool finalOut = true) {	
-    
+void printSolution_TERMINAL(FILE* f, bool finalOut) {	
+  fprintf(f, "\n");
+  //The ASCII-magic starts here:
   for(int j= 0; j < Forest.height(); ++j) {
     for(int i= 0; i < Forest.width(); ++i) {
       FIELDSTATE acField = Forest(i, j);
       int waterval = 0;
-      if (acField & WATERED) {
+      
+      fprintf(f, "\x1b[s  ");
+      if (acField == WALL)
+	fprintf(f, "\x1b[u\x1b[37;47mWA");
+      if (acField & WOODS)
+	fprintf(f, "\x1b[u\x1b[32;42mFO");
+      if (acField & BURNED)
+	fprintf(f, "\x1b[u\x1b[1;5;31m/\\");
+      if (acField & COAL)
+	fprintf(f, "\x1b[u\x1b[1;4;5;30m/\\");
+      if (acField & WATERED)
 	for (int t = 0; t < Solution.size(); ++t)
 	  if (Solution[t].x == i && Solution[t].y == j) {
-	    waterval = t+1;
+	    fprintf(f, "\x1b[u\x1b[46m%02d", t+1);
 	    break;
 	  }
-      }
-      printField(acField, waterval, f);
+      fprintf(f, "\x1b[0;39;49m");
     }
    
-    fprintf(f, "%s", EOL());
+    fprintf(f, "\n");
   }
   
-  if (finalOut) 
-    printLegend(f);
-  fprintf(f, "%s", EOL());
+  if (finalOut) {// An Explanation shall be printed
+    fprintf(f, "\nExplanation:");
+    fprintf(f, "\n\x1b[37;47mWA\x1b[39;49m  ---  WALL");
+    fprintf(f, "\n\x1b[32;42mFO\x1b[39;49m  ---  FOREST");
+    fprintf(f, "\n\x1b[1;5;31m/\\\x1b[0;39m  ---  BURNED");
+    fprintf(f, "\n\x1b[1;4;5;30m/\\\x1b[0;39m  ---  COAL (doubly burned)");
+    fprintf(f, "\n\x1b[46m##\x1b[0;39m  ---  WATERED at time ##");
+    fprintf(f, "\nFields can have more than 1 state.");
+  }
+  fprintf(f, "\n");
 }
+
+//END OF OUTPUT
 
 vector<Point>& getInitialBurningFields() {
   static vector<Point> burnedFields;
@@ -240,15 +266,15 @@ vector<Point>& getInitialBurningFields() {
   return burnedFields;
 }
   
-void simulateFire(const vector<Point>& initiallyBurningFields, bool waterOnlyBurningFields = true) {
+void simulateFire(const vector<Point>& initiallyBurningFields) {
   vector<Point> burnedFields = initiallyBurningFields;
-  printSolution(stdout, printField_TERMINAL, EOL_TERMINAL, printLegend_TERMINAL, false);
+  printSolution_TERMINAL(stdout, false);
   if (OUT != 0)
-    printSolution(OUT, printField, EOL, printLegend, false);
+    printSolution(OUT, false);
   
   int time = 0;
-  while(!burnedFields.empty()) {                            // Simulate as long as there's still fire in the world
-    vector<Point> newBurnedFields;                          // The burning fields at the next point of time
+  while(!burnedFields.empty()) {                           // Simulate as long as there's still fire in the world
+    vector<Point> newBurnedFields;                         // The burning fields at the next point of time
     
     //Calculate the new burning fields
     for(size_t i = 0; i < burnedFields.size(); ++i){
@@ -256,39 +282,40 @@ void simulateFire(const vector<Point>& initiallyBurningFields, bool waterOnlyBur
       int acy = burnedFields[i].y;
       
       if(Forest(acx, acy) & WATERED)
-	continue;                                           // The field got watered and does not spread fire
-      Forest(acx, acy) |= COAL;                             // Field burned down to coal...
+	continue;                                          // The field got watered and does not spread fire
+      Forest(acx, acy) |= COAL;                            // Field burned down to coal...
 
       for(int j = 0; j < 4; ++j) {
 	int newx = acx + dir[j][0];
 	int newy = acy + dir[j][1];
 	
 	if(newx < 0 || newy < 0 || newy >= Forest.height() || newx >= Forest.width())
-	  continue;                                         // new field is outside the woods
+	  continue;                                        // new field is outside the woods
 	if(Forest(newx, newy) == WOODS){
-	  Forest(newx, newy) |= BURNED;                     // Field starts burning
+	  Forest(newx, newy) |= BURNED;                    // Field starts burning
 	  newBurnedFields.push_back(Point(newx,newy));
 	  
-// 	  printf("  From now on burning: (%i|%i)\n",newx,newy);     // log the happenings
+//  	  printf("  From now on burning: (%i|%i)\n",newx,newy);     // log the happenings
 	}
       }
     }
-    if(newBurnedFields.empty())                             // Nothing to water, all plants happy...
+    if(newBurnedFields.empty())                           // Nothing to water, all plants happy...
 	break;
 	
-    Point toWater = getOptimalWaterSpot(newBurnedFields);   // Determine the field to water
-    Forest(toWater.x, toWater.y) |= WATERED;                // ... and water it
+    burnedFields = newBurnedFields;
+        
+    Point toWater = getOptimalWaterSpot(newBurnedFields); // Determine the field to water
+    Forest(toWater.x, toWater.y) |= WATERED;              // ... and water it
     Solution.push_back(toWater);
     
-    burnedFields = newBurnedFields;
     
     //Output / mirror the partial solution
     printf("At time %i: Water spot (%i|%i):\n",++time,toWater.x,toWater.y);
-    printSolution(stdout, printField_TERMINAL, EOL_TERMINAL, printLegend_TERMINAL, false);
+    printSolution_TERMINAL(stdout, false);
     
     if (OUT) {
-      fprintf(OUT, "At time %i: Water spot (%i|%i):\n",++time,toWater.x,toWater.y);
-      printSolution(OUT, printField, EOL, printLegend, false);
+      fprintf(OUT, "At time %i: Water spot (%i|%i):\n",time,toWater.x,toWater.y);
+      printSolution(OUT, false);
     }
 
   }
@@ -305,10 +332,10 @@ void simulateFire(const vector<Point>& initiallyBurningFields, bool waterOnlyBur
 	
   //Output / Mirror the solution
   printf("And you'll find %i pieces of coal and %i pieces of watered coal:\n",ccnt,wcnt);  
-  printSolution(stdout, printField_TERMINAL, EOL_TERMINAL, printLegend_TERMINAL);
+  printSolution_TERMINAL(stdout, true);
   if (OUT) {
     fprintf(OUT, "And you'll find %i pieces of coal and %i pieces of watered coal:\n",ccnt,wcnt);
-    printSolution(OUT,  printField, EOL, printLegend);
+    printSolution(OUT, true);
   }
 }
   
@@ -321,22 +348,15 @@ int main(int argc, char** argv){
     printf("Mirroring output to %s.\n", argv[2]);
     if (strstr(argv[2], ".tex")) {
       printf("I reckon you want me to produce some TeX stuff...\n");
-      EOL = EOL_TEX;
-      printField = printField_TEX;
-      printLegend = printLegend_TEX;
+      printSolution = printSolution_TEX;
     }
-    else{
-      EOL = EOL_TERMINAL;
-      printField = printField_TERMINAL;
-      printLegend = printLegend_TERMINAL;
-    }
+    else
+      printSolution = printSolution_TERMINAL;
     OUT = fopen(argv[2],"w");
   }
   else{
     OUT = 0;
-    EOL = EOL_TERMINAL;
-    printField = printField_TERMINAL;
-    printLegend = printLegend_TERMINAL;
+    printSolution = printSolution_TERMINAL;
   }
 
   parseInput(stdin);

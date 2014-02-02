@@ -1,4 +1,4 @@
-\documentclass[a4paper,12pt]{article}
+\documentclass[a4paper,12pt,table]{article}
 \usepackage[ngerman]{babel}
 \usepackage{ucs}
 \usepackage[utf8]{inputenc}
@@ -19,6 +19,8 @@
     urlcolor=black
 }
 
+
+\usepackage{setspace}
 \setlength{\textwidth}{16cm}
 \setlength{\textheight}{25.7cm}
 \setlength{\topmargin}{-1.7cm}
@@ -38,7 +40,7 @@
 \renewcommand{\footrulewidth}{0.5pt}
 
 \usepackage{csquotes}
-\usepackage[usenames,dvipsnames,svgnames,table]{xcolor}
+\usepackage[usenames,dvipsnames,svgnames]{xcolor}
 \definecolor{bluekeywords}{rgb}{0.13,0.13,1}
 \definecolor{greencomments}{rgb}{0,0.5,0}
 \definecolor{redstrings}{rgb}{0.9,0,0}
@@ -69,6 +71,12 @@ moredelim=**[is][\color{greencomments}]{§§§}{§§§}
 {ä}{{\"a}}1
 {ö}{{\"o}}1
 }
+
+
+\usepackage{tikz}
+\usetikzlibrary{matrix}
+
+
 \newcommand{\emphpar}[1]{\emph{#1}\marginpar[#1]{#1}\index{#1}}
 \newcommand{\emphparr}[1]{\emph{#1}\marginpar[#1]{#1}}
 

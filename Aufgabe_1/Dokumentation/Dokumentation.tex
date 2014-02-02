@@ -36,19 +36,60 @@ Für 2 Werte $\mu(F_1)$ und $\mu(F_2)$ gilt nun: ist $\mu(F_1) < \mu(F_2)$, so e
 Die \emph{minimale Lebenszeit} eines Feldes sei nun eben der kürzeste Abstand zu einem brennenden Feld. Es ist leicht zu erkennen, dass nach mindesten so vielen Beobachtungen, wie die minimale Lebenszeit eines Feldes ist, das Feld zu brennen beginnt.\\
 $\mu(F)$ gibt also auch die Anzahl der Felder an, deren minimale Lebenszeit allein durch $F$ besitmmt ist. Löscht man $F$, so wird, wie schon gesehen, die minimale Lebenszeit all dieser Felder höchstens größer, es ist also am Besten, dasjenige Feld $F^\star$ zum Löschen auszuwählen, welches $\mu(\cdot)$ für alle aktuell brennenden Felder maximiert.
 
-Es gilt nun noch $\mu$ effizient zu bestimmen. Da ein Wald eine rechteckige Gitterform besitzt, ist der kürzeste Abstand zwischen 2 Feldern 1, ganau dann, wenn diese Felder eine gemeinsame Kante haben. Fasst man das Gitten nun als Graphen auf, wobei die Felder die Knoten sind und zwischen 2 Knoten eine Kante ist, genau dann wenn zwischen diesen Feldern eine Kante ist. Es nun offensichtlich, dass dieser Graph ungewichtet ist. Somit ist das Finden von kürzesten Abständen mittels einer Breitensuche möglich. Beim Zählen der Felder mit kürzestem Abstand is tdann jedoch darauf zu achten, dass diejenigen Felder, welche zu mehr als 1 Feld den kürzesten Abstand haben, nicht gezählt werden, da sich für diese Felder bei dieser Beobachtung garantiert keine Verbesserung ergibt.
+Es gilt nun noch $\mu$ effizient zu bestimmen. Da ein Wald eine rechteckige Gitterform besitzt, ist der kürzeste Abstand zwischen 2 Feldern 1, ganau dann, wenn diese Felder eine gemeinsame Kante haben.\\
+Fasse man das Gitter nun als Graphen auf, wobei die Felder die Knoten sind und zwischen 2 Knoten eine Kante ist, genau dann, wenn zwischen diesen Feldern eine Kante ist. Es nun offensichtlich, dass dieser Graph ungewichtet und ungerichtet  ist. Somit ist das Finden von kleinsten Abständen mittels einer \emph{Breitensuche} möglich.\\
+Dabei sind die Startfelder der Breitensuche die brennenden Felder. Dabei muss für jedes dieser brennenden Felder eine eigene Breitensuche gestartet werden; wobei für alle Breitensuchen gemeinsam die ermittelten kleinsten Abstände gespeichert werden müssen. Zusätzlich zu den kleinsten Abständen müssen auch die dazugehörigen brennenden Felder gespeichert werden, von denen pro Feld eventuell mehr als 1 existiert. Weiterhin muss die Breitensuche nur brennbare Felder besuchen.\\
+Sind die kleinsten Abstände gefunden, so kann $\mu$ ermittelt werden, mithilfe simplem durchiterieren über alle Felder und gleichzeitigem Zählen der Felder, für die nur 1 brennendes Feld gespeichert wurde.
 
-\subsection{Laufzeitanalyse}
-Eine Breitensuche hat eine Laufzeit von $\mathcal{O}(V + E)$ in einem Graphen mit $E$ Kanten und $V$ Knoten. Speziell hat der Graph bei dieser Aufgabe $n\cdot m$ Knoten und $(n-1)\cdot (m-1)$ Kanten; die Breitensuche hat also eine Laufzeit von $\mathcal{O}(n\cdot m)$.\\
-Eine Breitensuche wird nach obigem Algorithmus bei jeder der insgesamt $b$ Beobachtungen benötigt. Es ergibt sich eine Gesamtlaufzeit von $\mathcal{O}(n\cdot m \cdot b)$. Mit $b = \mathcal{O}(n\cdot m)$ ergibt sich eine (wohl sehr grobe) obere Schranke der Laufzeit von $\mathcal{O}(n^2 \cdot m^2)$.
+In Pseudocode:
+\begin{lstlisting}
+
+\end{lstlisting}
+
+\subsubsection{Korrektheit}
+Wie schon beschrieben, wird bei jeder Beobachtung das für diese Beobachtung beste Feld zum Löschen ausgewählt. Der Algorithmus ist also ein \emph{gieriger Algorithmus}. Es gilt also zu zeigen, dass insgesamt nicht weniger Felder abbrennen, sollte bei einer Beobachtung nicht das für diese Beobachtung optimalste Feld gelöscht werden.\\
+Außerdem muss gezeigt werden, dass der Algorithmus terminiert. Da der Algorithmus jedoch nur brennende und nicht verkohlte Felder betrachtet und jedes brennendes Feld nach endlicher Zeit ist den Zustand verkohlt übergeht, gibt es einen Zeitpunkt, ab dem alle einst brennenden Felder vekohlt sind. Dann gibt es jedoch keine Felder, auf denen der Algorithmus operieren kann, der Algorithmus terminiert dann, und somit immer.\\
+
+
+\subsubsection{Laufzeitanalyse}
+Eine Breitensuche hat eine Laufzeit von $\mathcal{O}(V + E)$ in einem Graphen mit $E$ Kanten und $V$ Knoten. Speziell hat der Graph bei dieser Aufgabe $n\cdot m$ Knoten und $(n-1)\cdot (m-1)$ Kanten.\\
+Eine Breitensuche wird nach obigem Algorithmus bei jeder der insgesamt $b$ Beobachtungen $f(b_i)$-mal benötigt, wobei $f(b_i)$ die Anzahl der zu betrachtenden brennenden Felder bei Beobachtung $b_i$ sei.\\
+Eine Breitensuche besucht nach obigem Algorithmus höchstens $n\cdot m - f(b_i)$ Felder; die Breitensuchen haben also eine Laufzeit von $\mathcal{O}(f(b_i)\cdot (2\cdot n\cdot m - f(b_i)))$. Es ist leicht zu erkennen, dass die Funktion $F(x) = x(a-x)$ das Maximum an der Stelle $x_{max} = \frac{a}{2}$ hat. Somit gilt $\mathcal{O}(f(b_i)\cdot (2\cdot n\cdot m - f(b_i))) = \mathcal{O}(\frac{nm}{2}(2nm - \frac{nm}{2}) = \mathcal{O}(\frac{3n²m²}{4}) = \mathcal{O}(n²m²)$
+ Es ergibt sich eine Gesamtlaufzeit von $\mathcal{O}(n²\cdot m² \cdot b)$. Mit $b = \mathcal{O}(n\cdot m)$ ergibt sich eine (wohl sehr grobe) obere Schranke der Laufzeit von $\mathcal{O}(n^3 \cdot m^3)$.\\
+Mit diesem Algorithmus lassen sich also Lösungen für Wälder gut berechnen, deren Dimensionen 200 nicht überschreiten, bei denen also $\max{n,m} \leq 200$.
 
 \subsection{Umsetzung}
-
+\newpage
 \subsection{Beispiele}
 \subsubsection{Beispiel 0}
 Die ist das Beispiel aus der Aufgabenstellung. Umgewandelt für mein Programm sieht diese Eingabe folgendermaßen aus\footnote{Diese Eingabe finden Sie auch in der Datei \texttt{0.in}}:
+{\small
 \lstinputlisting{../Aufgabe_1/0.in}
-Mein Programm produziert folgende Ausgabe\footnote{Diese Ausgabe finden Sie auch in der Datei \texttt{0.out.tex}.}\footnote{Um die ASCII-Escape-Sequenzen in \TeX\, korrekt darzustellen, habe ich spezielle Ausgabemethoden geschrieben. Diese produzieren anstatt der ASCII-Sequenzen \TeX -Befehle, welche optisch zu ähnlichen Ergebnissen führen.}:
-{
+}
+Mein Programm produziert folgende Ausgabe\footnote{Diese Ausgabe finden Sie auch in der Datei \texttt{0.out.tex}; Eine Datei \texttt{0.out} mit den ASCII-Escape-Sequenzen exisitert ebenfalls.}\footnote{Um die ASCII-Escape-Sequenzen in \TeX\, korrekt darzustellen, habe ich spezielle Ausgabemethoden geschrieben. Diese produzieren anstatt der ASCII-Sequenzen \TeX -Befehle, welche optisch zu ähnlichen Ergebnissen führen.}:\\
+{\ttfamily \small
 \input{../Aufgabe_1/0.out.tex}
+}
+\subsubsection{Beispiel 1}
+Eine Situation mit mehr als einem Feuer bei der ersten Beobachtung\footnote{Diese Eingabe finden Sie auch in der Datei \texttt{1.in}}:
+{\small
+\lstinputlisting{../Aufgabe_1/1.in}
+}
+Mein Programm produziert folgende Ausgabe\footnote{Diese Ausgabe finden Sie auch in der Datei \texttt{1.out.tex}; Eine Datei \texttt{1.out} mit den ASCII-Escape-Sequenzen exisitert ebenfalls.}:\\
+{\ttfamily \small
+\input{../Aufgabe_1/1.out.tex}
+}
+\subsubsection{Beispiel 2}
+\footnote{Diese Eingabe finden Sie auch in der Datei \texttt{2.in}}:
+{\small
+\lstinputlisting{../Aufgabe_1/2.in}
+}
+Mein Programm produziert folgende Ausgabe\footnote{Diese Ausgabe finden Sie auch in der Datei \texttt{2.out.tex}; Eine Datei \texttt{2.out} mit den ASCII-Escape-Sequenzen exisitert ebenfalls.}:\\
+{\ttfamily \small
+\input{../Aufgabe_1/2.out.tex}
+}
+
+\subsection{Quelltext}
+{\small
+\lstinputlisting{../Aufgabe_1/Buschfeuer.cpp}
 }
