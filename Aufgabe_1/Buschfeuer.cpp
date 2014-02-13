@@ -9,8 +9,8 @@ using namespace std;
 typedef pair<int,int> PII;
 
 #define FIELDSTATE 	char
-#define WALL		0
-#define WOODS		1
+#define EMPTY		0
+#define BURNABLE	1
 #define BURNED		2
 #define WATERED		4
 #define COAL		8
@@ -81,7 +81,7 @@ Point getOptimalWaterSpot(vector<Point>& candidates){
       
       if(newx < 0 || newy < 0 || newy >= Forest.height() || newx >= Forest.width())
 	continue;                                           // new field is outside the woods
-      if (Forest(newx, newy) != WOODS)
+      if (Forest(newx, newy) != BURNABLE)
 	continue;                                           // Field is not of interest
 	
       if(visited[newx][newy].count(acColor) == 0)           // Don't compute things twice
@@ -159,20 +159,20 @@ void printSolution_TEX(FILE* f, bool finalOut) {
 	fprintf(f," &");
       
         FIELDSTATE acField = Forest(i, j);
-	if(acField == WALL)
+	if(acField == EMPTY)
 	  fprintf(f, "|[fill=white]|");
 	else if(acField & WATERED)
 	  fprintf(f, "|[fill=cyan]|");
-	else if(acField & WOODS)
+	else if(acField & BURNABLE)
 	  fprintf(f, "|[fill=green]|");
 	  
 	if(acField & COAL)
 	  fprintf(f, "\\color[rgb]{0,0,0}");
 	else if(acField & BURNED)
 	  fprintf(f, "\\color[rgb]{1,0,0}");
-	else if(acField == WALL)
+	else if(acField == EMPTY)
 	  fprintf(f, "\\color[gray]{0.5}");
-	else if(acField & WOODS)
+	else if(acField & BURNABLE)
 	  fprintf(f, "\\color[gray]{0.75}");
 	  
 	if(acField & WATERED){
@@ -186,9 +186,9 @@ void printSolution_TEX(FILE* f, bool finalOut) {
 	  fprintf(f, "\\textbf{CO}");
 	else if(acField & BURNED)
 	  fprintf(f, "\\textbf{BU}");
-	else if(acField == WALL)
+	else if(acField == EMPTY)
 	  fprintf(f, "WA");
-	else if(acField & WOODS)
+	else if(acField & BURNABLE)
 	  fprintf(f, " FO");
 	else
 	  fprintf(f, "\\phantom{AA}");
@@ -202,10 +202,10 @@ void printSolution_TEX(FILE* f, bool finalOut) {
   
   if(finalOut){
     fprintf(f, "\\\\\nExplanation:");
-    fprintf(f, "\\\\\n\\colorbox{white}{\\color[gray]{0.5}WA}  ---  WALL");
-    fprintf(f, "\\\\\n\\colorbox{green}{\\color[gray]{0.5}FO}  ---  FOREST");
-    fprintf(f, "\\\\\n{\\color[rgb]{1,0,0}\\textbf{BU}}  ---  BURNED");
-    fprintf(f, "\\\\\n{\\color[rgb]{0,0,0}\\textbf{CO}}  ---  COAL (doubly burned)");
+    fprintf(f, "\\\\\n\\colorbox{white}{\\color[gray]{0.5}WA}  ---  EMPTY");
+    fprintf(f, "\\\\\n\\colorbox{green}{\\color[gray]{0.5}FO}  ---  BURNABLE");
+    fprintf(f, "\\\\\n\\colorbox{white}{\\color[rgb]{1,0,0}\\textbf{BU}}  ---  BURNED");
+    fprintf(f, "\\\\\n\\colorbox{white}{\\color[rgb]{0,0,0}\\textbf{CO}}  ---  COAL (doubly burned)");
     fprintf(f, "\\\\\n\\colorbox{cyan}{\\#\\#}  ---  WATERED at time \\#\\#");
     fprintf(f, "\\\\\nFields can have more than 1 state.");
   }
@@ -220,9 +220,9 @@ void printSolution_TERMINAL(FILE* f, bool finalOut) {
       int waterval = 0;
       
       fprintf(f, "\x1b[s  ");
-      if (acField == WALL)
+      if (acField == EMPTY)
 	fprintf(f, "\x1b[u\x1b[37;47mWA");
-      if (acField & WOODS)
+      if (acField & BURNABLE)
 	fprintf(f, "\x1b[u\x1b[32;42mFO");
       if (acField & BURNED)
 	fprintf(f, "\x1b[u\x1b[1;5;31m/\\");
@@ -242,8 +242,8 @@ void printSolution_TERMINAL(FILE* f, bool finalOut) {
   
   if (finalOut) {// An Explanation shall be printed
     fprintf(f, "\nExplanation:");
-    fprintf(f, "\n\x1b[37;47mWA\x1b[39;49m  ---  WALL");
-    fprintf(f, "\n\x1b[32;42mFO\x1b[39;49m  ---  FOREST");
+    fprintf(f, "\n\x1b[37;47mWA\x1b[39;49m  ---  EMPTY");
+    fprintf(f, "\n\x1b[32;42mFO\x1b[39;49m  ---  BURNABLE");
     fprintf(f, "\n\x1b[1;5;31m/\\\x1b[0;39m  ---  BURNED");
     fprintf(f, "\n\x1b[1;4;5;30m/\\\x1b[0;39m  ---  COAL (doubly burned)");
     fprintf(f, "\n\x1b[46m##\x1b[0;39m  ---  WATERED at time ##");
@@ -252,6 +252,7 @@ void printSolution_TERMINAL(FILE* f, bool finalOut) {
   fprintf(f, "\n");
 }
 
+void dontPrintSolution(FILE* f,bool finalOut) { return; }
 //END OF OUTPUT
 
 vector<Point>& getInitialBurningFields() {
@@ -268,7 +269,8 @@ vector<Point>& getInitialBurningFields() {
   
 void simulateFire(const vector<Point>& initiallyBurningFields) {
   vector<Point> burnedFields = initiallyBurningFields;
-  printSolution_TERMINAL(stdout, false);
+  if(printSolution != dontPrintSolution)
+    printSolution_TERMINAL(stdout, false);
   if (OUT != 0)
     printSolution(OUT, false);
   
@@ -291,7 +293,7 @@ void simulateFire(const vector<Point>& initiallyBurningFields) {
 	
 	if(newx < 0 || newy < 0 || newy >= Forest.height() || newx >= Forest.width())
 	  continue;                                        // new field is outside the woods
-	if(Forest(newx, newy) == WOODS){
+	if(Forest(newx, newy) == BURNABLE){
 	  Forest(newx, newy) |= BURNED;                    // Field starts burning
 	  newBurnedFields.push_back(Point(newx,newy));
 	  
@@ -310,11 +312,13 @@ void simulateFire(const vector<Point>& initiallyBurningFields) {
     
     
     //Output / mirror the partial solution
-    printf("At time %i: Water spot (%i|%i):\n",++time,toWater.x,toWater.y);
-    printSolution_TERMINAL(stdout, false);
+    
+    printf("---\nAt time %i: Water spot (%i|%i)\n",++time,toWater.x,toWater.y);
+    if(printSolution != dontPrintSolution)
+      printSolution_TERMINAL(stdout, false);
     
     if (OUT) {
-      fprintf(OUT, "At time %i: Water spot (%i|%i):\n",time,toWater.x,toWater.y);
+      fprintf(OUT, "---\nAt time %i: Water spot (%i|%i)\n",time,toWater.x,toWater.y);
       printSolution(OUT, false);
     }
 
@@ -331,10 +335,11 @@ void simulateFire(const vector<Point>& initiallyBurningFields) {
 	ccnt++;
 	
   //Output / Mirror the solution
-  printf("And you'll find %i pieces of coal and %i pieces of watered coal:\n",ccnt,wcnt);  
-  printSolution_TERMINAL(stdout, true);
+  printf("---\nAnd you'll find %i pieces of coal and %i pieces of watered coal\n",ccnt,wcnt);  
+  if(printSolution != dontPrintSolution)
+    printSolution_TERMINAL(stdout, true);
   if (OUT) {
-    fprintf(OUT, "And you'll find %i pieces of coal and %i pieces of watered coal:\n",ccnt,wcnt);
+    fprintf(OUT, "---\nAnd you'll find %i pieces of coal and %i pieces of watered coal\n",ccnt,wcnt);
     printSolution(OUT, true);
   }
 }
@@ -346,9 +351,17 @@ int main(int argc, char** argv){
   }
   if (argc > 2){
     printf("Mirroring output to %s.\n", argv[2]);
-    if (strstr(argv[2], ".tex")) {
+    if (strstr(argv[2], ".tex2")) {
+      printf("I reckon you want me to produce some graphicless TeX stuff...\n");
+      printSolution = dontPrintSolution;
+    }
+    else if (strstr(argv[2], ".tex")) {
       printf("I reckon you want me to produce some TeX stuff...\n");
       printSolution = printSolution_TEX;
+    }
+    else if (strstr(argv[2], ".raw")) {
+      printf("I reckon you want me to surpress graphics...\n");
+      printSolution = dontPrintSolution;
     }
     else
       printSolution = printSolution_TERMINAL;

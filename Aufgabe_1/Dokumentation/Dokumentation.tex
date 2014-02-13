@@ -124,6 +124,15 @@ Eine Breitensuche besucht nach obigem Algorithmus höchstens $n\cdot m - f(b_i)$
 Mit diesem Algorithmus lassen sich also Lösungen für Wälder gut berechnen, deren Dimensionen 200 nicht überschreiten, bei denen also $\max{n,m} \leq 200$.
 
 \subsection{Umsetzung}
+Für die Umsetzung habe ich die Sprache \texttt{C++} verwendet.\\
+Zunächst habe ich für ein Feld \texttt{FIELDSTATE} als \texttt{char} definiert.\footnote{Das Wort \enquote{definiert} ist durchaus ernst zu nehmen, da es hier beschreiben soll, dass etwas mittels \texttt{\# define} \enquote{gelöst} wurde.} Dabei kann ein \texttt{FIELDSTATE} einen oder mehrere, ebenfalls definierter, Zustände annehmen. Dabei handelt es sich um die in der Lösungsidee beschriebenen Zustände eines Feldes, \texttt{EMPTY}, \texttt{BURNABLE}, \texttt{BURNED}, \texttt{WATERED} und \texttt{COAL}.\\
+Für Wälder habe ich eine Klasse \texttt{Woods} geschrieben. Jeder Wald hat dabei eine Breite (\texttt{Width}) und eine Höhe (\texttt{Height}) und hält sich ein 2-dimensional Variables Feld an \texttt{FIELDSTATE}s \texttt{Fields}.\\
+Durch geschickte Operatorenüberladung und geeigntete Akzessormethoden können diese Attribute vollständig gekapselt werden.
+
+Das Lesen der Eingabe übernimmt die Prozedur \texttt{parseInput}, welche die Daten in eine globale Instanz der Klasse \texttt{Woods} \texttt{Forest} einliest.\\
+Ist die Eingabe gelesen, werden aus dieser die zu Beginn brennenden Felder mithilfe der Funktion \texttt{getInitialBurningFields} ermittelt und dann gleich an die Prozedur \texttt{simulateFire} weitergereicht. Diese Prozedur \texttt{simulateFire} simuliert nun das Feuer und ermittelt die zu löschenden Felder unter Zuhilfenahme der Funktion \texttt{getOptimalWaterSpot}.\\
+Dabei wird nach jedem Löschvorgang eine Ausgabe getätigt, welche die zu löschende Position (oben links mit (0|0) beginnend) ausgibt. Auch wird unter Verwendung von ASCII-Escape-Sequenzen ein Bild in der Konsole angezeigt, welches den Wald darstellt.\\
+Ist das Feuer gelöscht (kann es sich also nicht weiter ausbreiten), wird dem NUtzer eine Meldung ausgegeben, wie viele Felder verbrannten und wie viele Felder verbrannt und gelöscht wurden. (Diese beiden Zahlen beschreiben disjunkte Mengen.) Auch hier wird wieder ein Bild erzeugt und ausgegeben.
 \newpage
 \subsection{Beispiele}
 \subsubsection{Beispiel 0}
@@ -152,6 +161,15 @@ Mein Programm produziert folgende Ausgabe\footnote{Diese Ausgabe finden Sie auch
 Mein Programm produziert folgende Ausgabe\footnote{Diese Ausgabe finden Sie auch in der Datei \texttt{2.out.tex}; Eine Datei \texttt{2.out} mit den ASCII-Escape-Sequenzen exisitert ebenfalls.}:\\
 {\ttfamily \small
 \input{../Aufgabe_1/2.out.tex}
+}
+\subsubsection{Beispiel 3}
+Ein (etwas) größeres Beispiel.\footnote{Diese Eingabe finden Sie auch in der Datei \texttt{3.in}}:
+{\small
+\lstinputlisting{../Aufgabe_1/3.in}
+}
+Mein Programm produziert folgende Ausgabe\footnote{Diese Ausgabe finden Sie auch in der Datei \texttt{3.out.tex2};} Dabei hat die Berechnung wenige Sekunden in Anspruch genommen, sofern nicht die Ausgabe der ASCII-Escape-Sequenzen gefordert wird. Dies erhöhte die Laufzeit auf ca. 30s.:\\
+{\ttfamily \small
+\input{../Aufgabe_1/3.out.tex2}
 }
 
 \subsection{Quelltext}
