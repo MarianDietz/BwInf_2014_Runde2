@@ -4,6 +4,7 @@
 #include <set>
 #include <string>
 #include <cstring>
+#include <algorithm>
 using namespace std;
 
 typedef pair<int,int> PII;
@@ -74,6 +75,7 @@ Point getOptimalWaterSpot(vector<Point>& candidates){
     if(visited[acPoint.x][acPoint.y].count(acColor))
       continue;
     visited[acPoint.x][acPoint.y].insert(acColor);
+    shortDis[acPoint.x][acPoint.y] = min(acDistance,shortDis[acPoint.x][acPoint.y]);
 
     for(int i= 0; i < 4; ++i){
       int newx = acPoint.x + dir[i][0];
@@ -93,25 +95,30 @@ Point getOptimalWaterSpot(vector<Point>& candidates){
   }
 
   //determine the field to be watered
-  vector<int> waterval(candidates.size(),0);
-
+  vector<PII> waterval(candidates.size(),PII(0,0));
+  vector<vector<int> > farthDist(candidates.size(), vector<int>(2*(Forest.width()+Forest.height()),0));
+  
   //Count the number of fields that have an unique fire spot a.k.a. waterval
+  //Reckon the farthest field
   for(int i= 0; i< Forest.width(); ++i)
     for(int j= 0; j < Forest.height(); ++j)
-      if(visited[i][j].size() == 1)
-	waterval[*visited[i][j].begin()]++;
+      if(visited[i][j].size() == 1){
+	waterval[*visited[i][j].begin()].first++;
+	farthDist[*visited[i][j].begin()][shortDis[i][j]]++;
+      }
+  for(int i = 0; i < waterval.size(); ++i)
+    waterval[i].second = i;
 	
   //determine the field of the candidates which has the highest waterval
-  int maxv = waterval[0];                                  // maximal value
-  int maxi = 0;                                            // index of maximal value
   
-  for(int i= 1; i < candidates.size(); ++i)
-    if(waterval[i] > maxv){
-      maxv = waterval[i];
-      maxi = i;
-    }
-    
-  return candidates[maxi];
+  sort(waterval.begin(),waterval.end(),greater<PII>());
+  
+  for(int i = 0; i < waterval.size(); ++i)
+    for(int j = 1; j < candidates.size(); ++j)
+      if(farthDist[waterval[i].second][j] > 1)
+	return candidates[waterval[i].second];
+
+  return candidates[waterval[0].second];
 }
 
 //BEGIN OF INPUT
