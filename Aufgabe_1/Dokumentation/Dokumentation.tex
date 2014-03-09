@@ -101,22 +101,27 @@ SimuliereFeuer() { //Die eigentliche Berechnung
 
 \subsubsection{Korrektheit}
 Wie schon beschrieben, wird bei jeder Beobachtung das für diese Beobachtung nach $\mu$ beste Feld zum Löschen ausgewählt.\\
-Es gilt also zu zeigen, dass insgesamt nicht weniger Felder abbrennen, sollte bei einer Beobachtung nicht das für diese Beobachtung nach $\mu$ optimalste Feld gelöscht werden. Verallgemeinernd muss gezeigt werden, dass kein $\mu'$ existiert, welches bei midestens 1 Beobachtung 1 anderes Feld als $\mu$ vorschlägt und bei der insgesamt weniger Felder abbrennen als bei $\mu$; dass $\mu$ also \emph{optimal} ist.\\
-Außerdem muss gezeigt werden, dass der Algorithmus terminiert. Da der Algorithmus jedoch nur brennende und nicht verkohlte Felder betrachtet und jedes brennendes Feld nach endlicher Zeit ist den Zustand verkohlt übergeht, gibt es einen Zeitpunkt, ab dem alle einst brennenden Felder vekohlt sind. Dann gibt es jedoch keine Felder, auf denen der Algorithmus operieren kann, der Algorithmus terminiert dann, und somit immer.
+Es gilt also zu zeigen, dass insgesamt nicht weniger Felder abbrennen, sollte bei einer Beobachtung nicht das für diese Beobachtung nach $\mu$ optimalste Feld gelöscht werden. 
 
-Nach der Definition von $\mu$ wird dasjenige, beliebige Feld $F_i$ aus allen möglichen Feldern $F_1..F_n$ zum Löschen ausgewählt, welches die minimale Lebenszeit von den meisten Feldern erhöht. Wählte man ein beliebiges Feld $F_i^<$ aus $\{F_1,...,F_n\}$, mit $\mu(F_i^<) < \mu(F_i)$ so erhöht sich nach Definition der minimalen Lebenszeit diese bei $\mu(F_i) - \mu(F_i^<) > 0$ Feldern weniger, als wenn man $F_i$ wählte. Erhalten diese Felder in den nächsten $z_o$ Beobachtungen keine Lebenszeitvelängerung, so brennen sie ab, wobei $z_o$ der kleinste Abstand des Feldes $o$ zu $F_i$ ist.\\
-Es verbleibt also zu zeigen, dass es keine Situation geben kann, bei der die Wahl von $F_i^<$ zu einer insgesamt geringeren Anzahl an verbrannten Feldern führt.\\
-Angenommen es gäbe solch eine Situation.\\
-Dies heißt jedoch, dass es eine oder mehrere Löschungen von Feldern gibt, welche insgesamt dazu führen, dass die Lebenszeit von $\mu(F_i) - \mu(F_i^<) + 1$ Feldern verlängert wird. Außerdem dürfen diese Löschungen nicht möglich sein, wenn $F_i$ anstatt $F_i^<$ gelöscht wird. Dies im Speziellen heißt jedoch, dass Felder gelöscht werden, welche sonst durch die Löschung von $F_i$ eine Lebenszeitverlängerung erhielten. Somit wäre es aber besser gewesen, $F_i$ zu löschen, da bei den Beobachtungen danach auch andere Felder gelöscht werden könnten und die insgesamte Anzahl an verbrannten Feldern so insgesamt gesunken wäre.\footnote{Es ist theoretisch möglich, dass die Wahl zwischen $F_i^<$ und $F_i$ keinen Unterschied macht, beispielsweise, wenn alle Felder innerhalb der nächsten $o$ Beobachtungen verkohlen oder gelöscht werden. Dabei sei $o$ der maximale Abstand, der in $\mu(F_i^<)$ Berücksichtigung fand. Dies stellt jedoch keinen Widerspruch zur Behauptung dar.}
-Es ist also optimal, ein Feld mit maximalem $\mu(F_i)$ auszuwählen. Bleibt zu zeigen, dass die Wahl eines speziellen $F_i$ mit maximalem $\mu(F_i)$ an der insgesamten Anzahl an verbrannten Feldern nichts ändert.\\
-Sei $F_i^=$ ein beliebiges Feld aus $\{F_1,...,F_n\}$, mit $\mu(F_i^=) = \mu(F_i)$ und $F_i^= \not= F_i$.\footnote{Sei vorrausgestzt, dass ein solches $F_i^=$ existiert. Andernfalls existiert dieser Fall nicht, der Beweis ist dann hier beendet.}\\
-Es genügt zu zeigen, dass das Wählen von $\mu(F_i^=)$ keine Verringerung der am Ende insgesamt brennenden Felder gegenüber  $\mu(F_i)$ darstellt, da $\mu(F_i)$ und $\mu(F_i^=)$ beliebig gewählt sind.\\
-Angenommen dies sei der Fall.\\
+Es lässt sich jedoch ein einfaches Beispiel konstruieren, indem eben dies der Fall ist; eine bessere Lösung also gefunden werden kann, wird nicht das nach $\mu$ optimalste Feld gelöscht:
 
+\begin{multicols}{2}
+Die Löschung nach dem Algorithmus:
+{\ttfamily \small
+\input{../Aufgabe_1/x.out.tex}
+}
 
-Der Algorithmus ist also korrekt und optimal.
+Eine bessere Löschung:
+{\ttfamily \small
+\input{../Aufgabe_1/x-opt.out.tex}
+}
+\end{multicols}
+
+Der Algorithmus ist also nicht optimal, es handelt sich um eine Heuristik. Dabei liefert sie bei vielen Eingaben \emph{ziemlich} gute Ergebnisse\footnote{Siehe dazu Sektion Beispiele}. Zum Vergleich habe ich den Brute-Force-Ansatz implementiert, der garantiert optimale Löschungen liefert. 
 
 \subsubsection{Laufzeitanalyse}
+Der Brute-Force-Ansatz probiert alle Möglichkeiten an verschiedenen Löschungen und wählt die optimalste. Grob überschlagen gibt es für jede Löschung 4 Möglichkeiten, somit ergibt sich eine grobe obere Schranke für den Worst-Case von $\mathcal{O}(4^b)$, mit $b$ der Anzahl der Löschungen der Lösung\footnote{Es gibt wohl Pfade im Suchbaum, die länger als $b$ sind; durch geschicktes Pruning ist diese Schranke jedoch einhaltbar}. Dieser Ansatz hat also eine exponenzielle Laufzeit, im Gegensatz zu der Heuristik wie im Folgenden gezeigt wird.
+
 Eine Breitensuche hat eine Laufzeit von $\mathcal{O}(V + E)$ in einem Graphen mit $E$ Kanten und $V$ Knoten. Speziell hat der Graph bei dieser Aufgabe $n\cdot m$ Knoten und $(n-1)\cdot (m-1)$ Kanten.\\
 Eine Breitensuche wird nach obigem Algorithmus bei jeder der insgesamt $b$ Beobachtungen $f(b_i)$-mal benötigt, wobei $f(b_i)$ die Anzahl der zu betrachtenden brennenden Felder bei Beobachtung $b_i$ sei.\\
 Eine Breitensuche besucht nach obigem Algorithmus höchstens $n\cdot m - f(b_i)$ Felder; die Breitensuchen haben also eine Laufzeit von $\mathcal{O}(f(b_i)\cdot (2\cdot n\cdot m - f(b_i)))$. Es ist leicht zu erkennen, dass die Funktion $F(x) = x(a-x)$ das Maximum an der Stelle $x_{max} = \frac{a}{2}$ hat. Somit gilt $\mathcal{O}(f(b_i)\cdot (2\cdot n\cdot m - f(b_i))) = \mathcal{O}(\frac{nm}{2}(2nm - \frac{nm}{2}) = \mathcal{O}(\frac{3n²m²}{4}) = \mathcal{O}(n²m²)$
@@ -124,15 +129,27 @@ Eine Breitensuche besucht nach obigem Algorithmus höchstens $n\cdot m - f(b_i)$
 Mit diesem Algorithmus lassen sich also Lösungen für Wälder gut berechnen, deren Dimensionen 200 nicht überschreiten, bei denen also $\max{n,m} \leq 200$.
 
 \subsection{Umsetzung}
-Für die Umsetzung habe ich die Sprache \texttt{C++} verwendet.\\
-Zunächst habe ich für ein Feld \texttt{FIELDSTATE} als \texttt{char} definiert.\footnote{Das Wort \enquote{definiert} ist durchaus ernst zu nehmen, da es hier beschreiben soll, dass etwas mittels \texttt{\# define} \enquote{gelöst} wurde.} Dabei kann ein \texttt{FIELDSTATE} einen oder mehrere, ebenfalls definierter, Zustände annehmen. Dabei handelt es sich um die in der Lösungsidee beschriebenen Zustände eines Feldes, \texttt{EMPTY}, \texttt{BURNABLE}, \texttt{BURNED}, \texttt{WATERED} und \texttt{COAL}.\\
-Für Wälder habe ich eine Klasse \texttt{Woods} geschrieben. Jeder Wald hat dabei eine Breite (\texttt{Width}) und eine Höhe (\texttt{Height}) und hält sich ein 2-dimensional Variables Feld an \texttt{FIELDSTATE}s \texttt{Fields}.\\
+Für die Umsetzung habe ich die Sprache \texttt{C++} verwendet. Dabei habe ich sowohl den Brute-Force-Ansatz als auch die Heuristik implementiert.\\
+Zunächst habe ich mir für Wälder eine Klasse \texttt{Woods} geschrieben. Deren Deklaration findet sich in der Datei \texttt{Woods.h}, die Implementierung in der Datei \texttt{Woods.cpp}. Jeder Wald hat dabei eine Breite (\texttt{Width}) und eine Höhe (\texttt{Height}).
+
+Dabei benutzen Wälder für die Representierung eines Feldes einen \texttt{FIELDSTATE}, welcher als \texttt{char} definiert ist. \footnote{Das Wort \enquote{definiert} ist durchaus ernst zu nehmen, da es hier beschreiben soll, dass etwas mittels \texttt{\# define} \enquote{gelöst} wurde.} Dabei kann ein \texttt{FIELDSTATE} einen oder mehrere, ebenfalls definierter, Zustände annehmen. Dabei handelt es sich um die in der Lösungsidee beschriebenen Zustände eines Feldes, \texttt{EMPTY}, \texttt{BURNABLE}, \texttt{BURNED}, \texttt{WATERED} und \texttt{COAL}.\\
+
+Ein Wald hält sich nun ein 2-dimensional, variabel großes Feld von FIELDSTATEs, der eigentliche Wald.\\
 Durch geschickte Operatorenüberladung und geeigntete Akzessormethoden können diese Attribute vollständig gekapselt werden.
 
+Der eigentliche Algorithmus findet sich in der Datei \texttt{Buschfeuer.cpp}; die Ein- und Ausgabe steht in der Datei \texttt{Buschfeuer.h}\\
 Das Lesen der Eingabe übernimmt die Prozedur \texttt{parseInput}, welche die Daten in eine globale Instanz der Klasse \texttt{Woods} \texttt{Forest} einliest.\\
 Ist die Eingabe gelesen, werden aus dieser die zu Beginn brennenden Felder mithilfe der Funktion \texttt{getInitialBurningFields} ermittelt und dann gleich an die Prozedur \texttt{simulateFire} weitergereicht. Diese Prozedur \texttt{simulateFire} simuliert nun das Feuer und ermittelt die zu löschenden Felder unter Zuhilfenahme der Funktion \texttt{getOptimalWaterSpot}.\\
 Dabei wird nach jedem Löschvorgang eine Ausgabe getätigt, welche die zu löschende Position (oben links mit (0|0) beginnend) ausgibt. Auch wird unter Verwendung von ASCII-Escape-Sequenzen ein Bild in der Konsole angezeigt, welches den Wald darstellt.\\
 Ist das Feuer gelöscht (kann es sich also nicht weiter ausbreiten), wird dem NUtzer eine Meldung ausgegeben, wie viele Felder verbrannten und wie viele Felder verbrannt und gelöscht wurden. (Diese beiden Zahlen beschreiben disjunkte Mengen.) Auch hier wird wieder ein Bild erzeugt und ausgegeben.
+
+\subsubsection{Eingabeformat}
+Wird mein Programm über ein Terminal gestartet, so können ihm bis zu 2 Kommandozeilenparameter übergeben werden:
+\begin{itemize}
+\item[Arg. 1] Pfad zu einer Daei mit einer Eingabe
+\item[Arg. 2] Pfad zu einer Datei für eine Ausgabe; existierende Dateien werden überschrieben.\\
+Dabei gibt die Dateiendung dieser Datei das Verhalten meines Programmes an:
+\end{itemize}
 \newpage
 \subsection{Beispiele}
 \subsubsection{Beispiel 0}
@@ -140,10 +157,13 @@ Die ist das Beispiel aus der Aufgabenstellung. Umgewandelt für mein Programm si
 {\small
 \lstinputlisting{../Aufgabe_1/0.in}
 }
-Mein Programm produziert folgende Ausgabe\footnote{Diese Ausgabe finden Sie auch in der Datei \texttt{0.out.tex}; Eine Datei \texttt{0.out} mit den ASCII-Escape-Sequenzen exisitert ebenfalls.}\footnote{Um die ASCII-Escape-Sequenzen in \TeX\, korrekt darzustellen, habe ich spezielle Ausgabemethoden geschrieben. Diese produzieren anstatt der ASCII-Sequenzen \TeX -Befehle, welche optisch zu ähnlichen Ergebnissen führen.}:\\
+Die Heuristik produziert folgende Ausgabe\footnote{Diese Ausgabe finden Sie auch in der Datei \texttt{0.out.tex}; Eine Datei \texttt{0.out} mit den ASCII-Escape-Sequenzen exisitert ebenfalls.}\footnote{Um die ASCII-Escape-Sequenzen in \TeX\, korrekt darzustellen, habe ich spezielle Ausgabemethoden geschrieben. Diese produzieren anstatt der ASCII-Sequenzen \TeX -Befehle, welche optisch zu ähnlichen Ergebnissen führen.}:\\
 {\ttfamily \small
 \input{../Aufgabe_1/0.out.tex}
 }
+
+Diese Ausgabe deckt sich auch mit der des Brute-Force-Ansatzes, weshalb ich dessen Ausgabe hier weglasse.
+
 \subsubsection{Beispiel 1}
 Eine Situation mit mehr als einem Feuer bei der ersten Beobachtung\footnote{Diese Eingabe finden Sie auch in der Datei \texttt{1.in}}:
 {\small
@@ -173,6 +193,32 @@ Mein Programm produziert folgende Ausgabe\footnote{Diese Ausgabe finden Sie auch
 }
 
 \subsection{Quelltext}
+\paragraph{Woods.h} \mbox{}
+
+{\small
+\lstinputlisting{../Aufgabe_1/Woods.h}
+}
+
+\paragraph{Woods.cpp}\mbox{}
+
+{\small
+\lstinputlisting{../Aufgabe_1/Woods.cpp}
+}
+
+\paragraph{Buschfeuer.h} Dies ist die Ein- und Ausgabe; sowie einige Definitionen.
+
+{\small
+\lstinputlisting{../Aufgabe_1/Buschfeuer.h}
+}
+
+\paragraph{Buschfeuer.cpp} Dies ist die Implementierung der Heuristik.
+
 {\small
 \lstinputlisting{../Aufgabe_1/Buschfeuer.cpp}
+}
+
+\paragraph{Buschfeuer2.cpp} Dies ist die Implementierung des Brute-Force-Ansatzes.
+
+{\small
+\lstinputlisting{../Aufgabe_1/Buschfeuer2.cpp}
 }
