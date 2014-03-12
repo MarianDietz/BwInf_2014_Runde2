@@ -96,7 +96,7 @@ int main(){
     if(dfs_num[i] == UNVISITED)
       tarjanSCC(i);
     
-  printf("IMP-GRAPH\n");
+  printf("IMP-GRAPH\n");d
   for(int i= 0; i < 2*N; ++i){
     if(i %2 == 1)
       printf("¬");
@@ -109,6 +109,7 @@ int main(){
     printf("\n");
   }   
   if(!FoundContradiction){ //CalculateSolution
+    printf("Found no contradiction!\n");
     for(int i= 0; i < 2*N; ++i)
       printf("%d %d\n",i,inScc[i]);
   }
