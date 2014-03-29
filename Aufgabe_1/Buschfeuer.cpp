@@ -64,6 +64,7 @@ Point getOptimalWaterSpot(std::vector<Point>& candidates){
     waterval[i].second = i;
   
   std::sort(waterval.begin(),waterval.end(),std::greater<PII>());
+  
   //BEGIN HOTFIX
   for(int i = 0; i < waterval.size(); ++i)
     for(int j = 1; j < candidates.size(); ++j)

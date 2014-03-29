@@ -20,4 +20,6 @@ public:
   
   FIELDSTATE& operator() (int x, int y);
   FIELDSTATE operator() (int x,  int y) const;
+  
+  bool operator==(const Woods& o) const;
 };

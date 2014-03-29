@@ -26,3 +26,14 @@ FIELDSTATE Woods::operator() (int x,  int y) const {
   }
   return this->Fields[y][x];
 }
+
+bool Woods::operator==(const Woods& o) const{
+  if(o.width() != width() || o.height() != height())
+    return false;
+  
+  for(int i = 0; i< width(); ++i)
+    for(int j = 0; j < height(); ++j)
+      if(o(i,j) != Fields[i][j])
+	return false;
+  return true;
+}
