@@ -73,9 +73,10 @@ moredelim=**[is][\color{greencomments}]{§§§}{§§§}
 }
 
 
+
 \usepackage{tikz}
 \usetikzlibrary{matrix}
-
+\usepackage{tkz-berge}
 
 \newcommand{\emphpar}[1]{\emph{#1}\marginpar[#1]{#1}\index{#1}}
 \newcommand{\emphparr}[1]{\emph{#1}\marginpar[#1]{#1}}
@@ -89,6 +90,17 @@ moredelim=**[is][\color{greencomments}]{§§§}{§§§}
 \maketitle
 \newpage
 \section*{Vorwort}
+
+Diese Welt ist voller Rätsel und Probleme.
+
+Zwei von ihnen habe ich auf den folgenden Seiten versucht zu lösen,\\ wobei sich mir durchaus neue Probleme in den Weg stellten.
+
+Keine sollten dagegen beim Starten meiner Programme aus einem Linux-artigen Terminal auftreten. \\
+Es sollte jedoch speziell bei meinen Programm zur Lösung von Aufgabe 1 darauf geachtet werden, dass das Terminal ASCII-Escape-Sequenzen unterstützt, damit die ausgegebenen Kunstwerke aka. Lösungen auch richtig dargestellt werden können.
+
+Diese Welt ist voller Rätsel und Probleme. Viele sind lösbar.
+
+
 %Armer Korrektor!\footnote{Dieses Vorwort existiert nur, weil es scheinbar zur Struktur gehören muss. Außerdem wollte ich sowas auch mal schreiben...}\footnote{Und es ist essenziell, um meine ständige Präsenz in den \emph{Perlen der Informatik} zu wahren...}\\
 %Auf den folgenden Seiten sind die vor meiner unendlichen Genialität strotzenden Lösungen der diesjährigen Zweitrundenaufgaben niedergeschrieben und zu bewundern. Die glorreichen Programme zu den einzelnen Aufgaben sollten sich auf einem normalen Rechner\footnote{Das sei im Folgenden ein Rechner mit einem Linux-artigen OS} aus einem Terminal problemlos starten lassen; speziell für Aufgabe 1 eignet sich besonders eines, welches die göttlichen, also mir gleichen, ASCII-Escape-Sequenzen unterstützt.\\
 %Weiterhin habe ich (noch) darauf verzichtet, meine überragenden Programmierfähigkeiten in wunderschönen  Programmen im gut lesbaren \texttt{ASM} auszudrücken; auch habe ich kein \texttt{C++} mit \texttt{inline-ASM} verwendet\footnote{Schade eigentlich.}.\\
@@ -98,6 +110,6 @@ moredelim=**[is][\color{greencomments}]{§§§}{§§§}
 \newpage
 \input{../Aufgabe_1/Dokumentation/Dokumentation.tex}
 \newpage
-%\input{../Aufgabe_2/Dokumentation/Dokumentation.tex}
+\input{../Aufgabe_2/Dokumentation/Dokumentation.tex}
 \newpage
 \end{document} 

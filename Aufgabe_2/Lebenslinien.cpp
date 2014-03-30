@@ -1,116 +1,133 @@
 #include <cstdio>
 #include <vector>
-#include <map>
-#include <algorithm>
+#include <list>
+#include <stack>
 
-using namespace std;
+std::vector<std::vector<int> > G; //The Graph
 
-vector<vector<int> > ImpG;
-
-int N; //Graphsize
-
-bool FoundContradiction = false;
-void printContradiction(vector<int>& Contradiction){
-  FoundContradiction = true;
-  printf("Found a Contradiction containing the nodes:\n");
-  for(auto i : Contradiction)
-    if(i %2 == 0)
-      printf("%d\n",(i/2) + 1);
-    else
-      printf("¬%d\n",(i/2) + 1);
-  printf("\n");
+void readInput(){
+  int N; scanf("%i",&N);
+  G.assign(N,std::vector<int>(N,0));
+  
+  //Read Graph stored in an Adjancy Matrix
+  for(int i = 0; i < N; ++i)
+    for(int j= 0; j < N; ++j)
+      scanf("%i",&G[i][j]); 
 }
 
-///SCC - Code
-vector<int> dfs_num,dfs_low, S;
-vector<bool> visited;
-vector<int> inScc;
-int dfsNumCounter = 0,SccCounter = 0;
 
-#define UNVISITED -1
+//BEGIN lexicographic BFS
 
-bool check(vector<int>& SCC){
-  sort(SCC.begin(), SCC.end());
-  for(size_t i = 1; i < SCC.size(); ++i)
-    if(SCC[i]/2 == SCC[i-1]/2)
-      return false;
+std::vector<int> LexBFSOrder(){
+  std::vector<int> ret(G.size(),-1);
+  
+  std::list<int> L;
+  for(int i = 0; i < (int)G.size(); ++i)
+    L.push_back(i);
+  std::vector<std::list<int>> classes;
+  classes.push_back(L);
+    
+  int cnt = G.size() - 1;
+  while(!classes.empty()){
+    int ac = *(classes.rbegin()->rbegin());
+    classes.rbegin()->pop_back();
+    if(classes.rbegin()->empty())
+      classes.pop_back();
+    
+    ret[ac] = cnt--;
+    std::vector<std::list<int>> new_classes;
+    for(auto i : classes){
+      std::list<int> tmp_in, tmp_out;
+      
+      for(auto j : i)
+	if(G[j][ac]) //partion depending on whether neighbor of ac or not
+	  tmp_in.push_back(j);
+	else
+	  tmp_out.push_back(j);
+	
+      if(!tmp_in.empty())
+	new_classes.push_back(tmp_in);
+      if(!tmp_out.empty())
+	new_classes.push_back(tmp_out);
+      
+    }
+    classes = new_classes;
+  }
+  
+  return ret;
+}
+
+//returns a pair of a collection of maximal cliques and a collection of edges between
+//those maximal cliques in a clique tree
+std::pair< std::vector<std::vector<int> >, std::vector<std::pair<int,int> > >
+LexBFS(){
+  
+}
+
+//END
+
+//BEGIN Chordality test
+
+//checks if ordering is a perfect elimination ordering
+bool isChordal(std::vector<int> ordering){
+  
+  
+  
   return true;
 }
 
-void tarjanSCC(int u){
-  dfs_low[u] = dfs_num[u] = dfsNumCounter++;
-  S.push_back(u);
-  visited[u] = true;
-  for(auto J = ImpG[u].begin(); J != ImpG[u].end(); ++J){
-    if(dfs_num[*J] == UNVISITED)
-      tarjanSCC(*J);
-    if(visited[*J])
-      dfs_low[u] = min(dfs_low[u], dfs_low[*J]);
-  }
+//END
+
+//BEGIN Interval Graph Reckon'ing
+
+std::list<std::vector<int>> L; //clique chain
+
+bool isIntervalGraph(){
+  auto T = LexBFS();
   
-  if(dfs_low[u] == dfs_num[u]){ //Found a SCC
-    ++SccCounter;
-    vector<int> SCC;
-    SCC.clear();
-    while(42){
-      int v = S.back(); S.pop_back(); visited[v] = false;
-      SCC.push_back(v);
-      inScc[v] = SccCounter;
+  auto X = T.first;
+  
+  std::list<int> L;
+  for(int i = 0; i < (int)X.size(); ++i)
+    L.push_back(i);
+  std::vector<std::list<int>> classes;
+  classes.push_back(L);
+    
+  stack<int> pivots;
+  
+  while(!classes.empty()){
+    int ac = *(classes.rbegin()->rbegin());
+    classes.rbegin()->pop_back();
+    if(classes.rbegin()->empty())
+      classes.pop_back();
+    
+    ret[ac] = cnt--;
+    std::vector<std::list<int>> new_classes;
+    for(auto i : classes){
+      std::list<int> tmp_in, tmp_out;
       
-      if(v%2)
-	printf("¬");
-      printf("%d ",v/2 + 1);
-      if(u == v)
-	break;
+      for(auto j : i)
+	if(G[j][ac]) //partion depending on whether neighbor of ac or not
+	  tmp_in.push_back(j);
+	else
+	  tmp_out.push_back(j);
+	
+      if(!tmp_in.empty())
+	new_classes.push_back(tmp_in);
+      if(!tmp_out.empty())
+	new_classes.push_back(tmp_out);
+      
     }
-    printf("\n\n");
-    if(!check(SCC))
-      printContradiction(SCC);
+    classes = new_classes;
   }
+  return false;
 }
 
-///End SCC - Code
+//END
 
 int main(){
-  scanf("%i",&N);
-  auto g = vector<vector<int> >(N,vector<int>(N,0));
-  ImpG.assign(2*N,vector<int>());
-  //Read Graph stored in an Adjancy Matrix
-  for(int i = 0; i < N; ++i)
-    for(int j= 0; j < N; ++j){
-      scanf("%i",&g[i][j]); 
-      if(i != j)
-	if(g[i][j])
-	  ImpG[2*i + 1].push_back(2*j);
-	else
-	  ImpG[2*i].push_back(2*j+1);
-    }
-
-    
-  dfs_num.assign(2*N,UNVISITED);
-  dfs_low.assign(2*N,0);
-  visited.assign(2*N,false);
-  inScc.assign(2*N,0);
-  dfsNumCounter = SccCounter = 0;
-  for(int i= 0; i < 2*N; ++i)
-    if(dfs_num[i] == UNVISITED)
-      tarjanSCC(i);
-    
-  printf("IMP-GRAPH\n");d
-  for(int i= 0; i < 2*N; ++i){
-    if(i %2 == 1)
-      printf("¬");
-    printf("%d:",(i/2) + 1);
-    for(auto j : ImpG[i])
-      if(j %2 == 0)
-	printf(" %d",(j/2) + 1);
-      else
-	printf(" ¬%d",(j/2) + 1);
-    printf("\n");
-  }   
-  if(!FoundContradiction){ //CalculateSolution
-    printf("Found no contradiction!\n");
-    for(int i= 0; i < 2*N; ++i)
-      printf("%d %d\n",i,inScc[i]);
-  }
+  readInput();
+  auto LO = LexBFSOrder();
+  for(auto i : LO)
+    printf("%d ",i);
 }
