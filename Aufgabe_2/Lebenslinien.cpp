@@ -2,6 +2,7 @@
 #include <vector>
 #include <list>
 #include <stack>
+#include <deque>
 
 std::vector<std::vector<int> > G; //The Graph
 
@@ -24,18 +25,23 @@ std::vector<int> LexBFSOrder(){
   std::list<int> L;
   for(int i = 0; i < (int)G.size(); ++i)
     L.push_back(i);
-  std::vector<std::list<int>> classes;
+  std::deque<std::list<int>> classes;
   classes.push_back(L);
     
   int cnt = G.size() - 1;
   while(!classes.empty()){
+    for(auto i : classes)
+      for(auto j : i)
+	printf("%d ",j + 1);
+    printf("\n");
+    
     int ac = *(classes.rbegin()->rbegin());
     classes.rbegin()->pop_back();
     if(classes.rbegin()->empty())
       classes.pop_back();
     
     ret[ac] = cnt--;
-    std::vector<std::list<int>> new_classes;
+    std::deque<std::list<int>> new_classes;
     for(auto i : classes){
       std::list<int> tmp_in, tmp_out;
       
@@ -45,12 +51,14 @@ std::vector<int> LexBFSOrder(){
 	else
 	  tmp_out.push_back(j);
 	
-      if(!tmp_in.empty())
-	new_classes.push_back(tmp_in);
       if(!tmp_out.empty())
 	new_classes.push_back(tmp_out);
+      if(!tmp_in.empty())
+	new_classes.push_back(tmp_in);
       
     }
+    
+    
     classes = new_classes;
   }
   
@@ -83,43 +91,43 @@ bool isChordal(std::vector<int> ordering){
 std::list<std::vector<int>> L; //clique chain
 
 bool isIntervalGraph(){
-  auto T = LexBFS();
-  
-  auto X = T.first;
-  
-  std::list<int> L;
-  for(int i = 0; i < (int)X.size(); ++i)
-    L.push_back(i);
-  std::vector<std::list<int>> classes;
-  classes.push_back(L);
-    
-  stack<int> pivots;
-  
-  while(!classes.empty()){
-    int ac = *(classes.rbegin()->rbegin());
-    classes.rbegin()->pop_back();
-    if(classes.rbegin()->empty())
-      classes.pop_back();
-    
-    ret[ac] = cnt--;
-    std::vector<std::list<int>> new_classes;
-    for(auto i : classes){
-      std::list<int> tmp_in, tmp_out;
-      
-      for(auto j : i)
-	if(G[j][ac]) //partion depending on whether neighbor of ac or not
-	  tmp_in.push_back(j);
-	else
-	  tmp_out.push_back(j);
-	
-      if(!tmp_in.empty())
-	new_classes.push_back(tmp_in);
-      if(!tmp_out.empty())
-	new_classes.push_back(tmp_out);
-      
-    }
-    classes = new_classes;
-  }
+//   auto T = LexBFS();
+//   
+//   auto X = T.first;
+//   
+//   std::list<int> L;
+//   for(int i = 0; i < (int)X.size(); ++i)
+//     L.push_back(i);
+//   std::vector<std::list<int>> classes;
+//   classes.push_back(L);
+//     
+//   stack<int> pivots;
+//   
+//   while(!classes.empty()){
+//     int ac = *(classes.rbegin()->rbegin());
+//     classes.rbegin()->pop_back();
+//     if(classes.rbegin()->empty())
+//       classes.pop_back();
+//     
+//     ret[ac] = cnt--;
+//     std::vector<std::list<int>> new_classes;
+//     for(auto i : classes){
+//       std::list<int> tmp_in, tmp_out;
+//       
+//       for(auto j : i)
+// 	if(G[j][ac]) //partion depending on whether neighbor of ac or not
+// 	  tmp_in.push_back(j);
+// 	else
+// 	  tmp_out.push_back(j);
+// 	
+//       if(!tmp_in.empty())
+// 	new_classes.push_back(tmp_in);
+//       if(!tmp_out.empty())
+// 	new_classes.push_back(tmp_out);
+//       
+//     }
+//     classes = new_classes;
+//   }
   return false;
 }
 
@@ -129,5 +137,5 @@ int main(){
   readInput();
   auto LO = LexBFSOrder();
   for(auto i : LO)
-    printf("%d ",i);
+    printf("%d ",i + 1);
 }

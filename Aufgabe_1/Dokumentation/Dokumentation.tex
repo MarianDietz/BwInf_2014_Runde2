@@ -128,6 +128,34 @@ Eine Breitensuche besucht nach obigem Algorithmus höchstens $n\cdot m - f(b_i)$
  Es ergibt sich eine Gesamtlaufzeit von $\mathcal{O}(n²\cdot m² \cdot b)$. Mit $b = \mathcal{O}(n\cdot m)$ ergibt sich eine (wohl sehr grobe) obere Schranke der Laufzeit von $\mathcal{O}(n^3 \cdot m^3)$.\\
 Mit diesem Algorithmus lassen sich also Lösungen für Wälder gut berechnen, deren Dimensionen 200 nicht überschreiten, bei denen also $\max{n,m} \leq 200$.
 
+\subsubsection{Eine andere Lösungsidee}
+
+Aus jeder Beobachtung kann nur eine bestimmte Anzahl an anderen Beobachtungen entstehen. Dabei gibt es eine \emph{Startbeobachtung}, nämlich die erste Beobachtung überhaupt. Auch gibt es letzte Beobachtungen, nach denen sich das Feuer nicht mehr ändert. \\
+Es entsteht ein \emph{Zustandsgraph} $Z = (B,E)$, welcher die Beobachtungen als Knoten hat und bei dem zwischen 2 Knoten eine Kante ist, genau dann, wenn es möglich ist von einer Beobachtung zu einer anderen gelangen kann; da sich das Feuer immer weiter ausbreitet ist der Graph also ein gerichteter, azyklischer Graph.
+
+Ist der kürzeste Pfad von einer letzten Beobachtung zur Startbeobachtung kürzer, als der kürzeste Pfad von einer anderen letzten Beobachtung zur Startbeobachtung, so ist auch die Gesamtanzahl der brennenden Felder der ersten Lösung geringer als die der zweiten. Nur unter den Lösungen, die gleich weit von der Startbeobachtung entfernt sind muss die Güte explizit verglichen werden.
+
+Daraus lässt sich direkt ein Algorithmus ableiten. Von der Startbeobachtung wird eine BFS auf dem Zustandsgraphen gestartet. Dabei wird anstatt der Queue eine Priority Queue verwendet, welche die Elemente zuerst nach Entfernung von der Startbeobachtung und dann nach der Anzahl der brennenden Felder sortiert. Diese Verwendung der Breitensuche wird oft auch \emph{State-Space-Search} genannt.
+
+Wird das Problem auf diese Weise gelöst, so lässt sich auch überprüfen, ob es besser sein kann, nicht brennende Felder zu löschen. Dazu wird zusätzlich zu jeder Beobachtung noch eine weitere Zahl gespeichert. Diese Zahl gibt die Anzahl der Beobachtungen an, bei welchen keine Löschung durchgeführt wurde. Ist bei einer Beobachtung diese Zahl nun größer oder gleich als die verbleibende Anzahl an brennenden Feldern, so kann das gesamte Feuer gelöscht werden. Die Löschungen werden sozusagen "nach hinten verschoben". In der Realität würde dann keine Löschung ausgelassen sondern ein nicht brennendes Feld gelöscht werden.
+
+Mit dieser Änderung wird der Zustandsgraph etwas größer, der eigentliche Algorithmus funktioniert jedoch weiterhin.
+
+\subsubsection{Korrektheit}
+
+Im Folgenden wird davon ausgegangen, dass bei jeder Beobachtung ein Feld gelöscht wird.
+
+Es genügt zu zeigen, dass es keine zwei Lösungen geben kann derart, dass die eine Lösung das Feuer nach $k_1$ Löschungen und die andere nach $k_2 > k_1$ Löschungen komplett löscht, und dass die Anzahl der insgesamt verbrannten Felder bei der 2. Lösung geringer ist als bei der ersten. 
+
+Angenommen $L_1$ und $L_2$ seien 2 Löschungen dieser Art, d.h. für die Anzahl der insgesamt verbrannten Felder $A$ gilt $A(L_1) > A(L_2)$ und bei $L_2$ wuden insgesamt mehr Felder gelöscht.
+
+\subsubsection{Laufzeitanalyse}
+
+Die Berechnung der Nachbarknoten einer Beobachtung im Zustandsgraphen benötigt schlimmstenfalls $\mathcal{O}(nm)$. Die State-Space-Search besucht wie eine normale Breitensuche schlimmstenfalls jeden Knoten im Zustandsgraphen 1 mal, bricht jedoch nach der ersten gefundenen Lösung ab. Somit werden maximal $\mathcal{O}((nm)^k)$ Berechnungen durchgeführt, wenn $k$ die  Anzahl der Löschungen in der Lösung ist.
+Somit ist dieser Algorithmus im Worst-Case-Szenario nicht besser als ein Brute-Force-Algorithmus; allerdings wird die Lösungssuche in der Regel stark geprunt.
+
+Auch benötigt dieser Algorithmus schlimmsten exponentiell viel Speicherplatz.
+
 \subsection{Umsetzung}
 Für die Umsetzung habe ich die Sprache \texttt{C++} verwendet. Dabei habe ich sowohl den Brute-Force-Ansatz als auch die Heuristik implementiert.\\
 Zunächst habe ich mir für Wälder eine Klasse \texttt{Woods} geschrieben. Deren Deklaration findet sich in der Datei \texttt{Woods.h}, die Implementierung in der Datei \texttt{Woods.cpp}. Jeder Wald hat dabei eine Breite (\texttt{Width}) und eine Höhe (\texttt{Height}).
@@ -142,6 +170,9 @@ Das Lesen der Eingabe übernimmt die Prozedur \texttt{parseInput}, welche die Da
 Ist die Eingabe gelesen, werden aus dieser die zu Beginn brennenden Felder mithilfe der Funktion \texttt{getInitialBurningFields} ermittelt und dann gleich an die Prozedur \texttt{simulateFire} weitergereicht. Diese Prozedur \texttt{simulateFire} simuliert nun das Feuer und ermittelt die zu löschenden Felder unter Zuhilfenahme der Funktion \texttt{getOptimalWaterSpot}.\\
 Dabei wird nach jedem Löschvorgang eine Ausgabe getätigt, welche die zu löschende Position (oben links mit (0|0) beginnend) ausgibt. Auch wird unter Verwendung von ASCII-Escape-Sequenzen ein Bild in der Konsole angezeigt, welches den Wald darstellt.\\
 Ist das Feuer gelöscht (kann es sich also nicht weiter ausbreiten), wird dem NUtzer eine Meldung ausgegeben, wie viele Felder verbrannten und wie viele Felder verbrannt und gelöscht wurden. (Diese beiden Zahlen beschreiben disjunkte Mengen.) Auch hier wird wieder ein Bild erzeugt und ausgegeben.
+
+
+Die Implementierung der State-Space-Search kann in der Datei \texttt{Buschfeuer.cpp} nachgelesen werden, dabei wird der Zustandsgraph nicht komplett vorberechnet, sonder erst just-in-time berechnet. Die Ein- und Ausgabe ist dabei die selbe wie bei dem anderen Algorithmus.
 
 \subsubsection{Eingabeformat}
 Wird mein Programm über ein Terminal gestartet, so können ihm bis zu 2 Kommandozeilenparameter übergeben werden:
@@ -162,14 +193,14 @@ Die Heuristik produziert folgende Ausgabe\footnote{Diese Ausgabe finden Sie auch
 \input{../Aufgabe_1/0.out.tex}
 }
 
-Diese Ausgabe deckt sich auch mit der des Brute-Force-Ansatzes, weshalb ich dessen Ausgabe hier weglasse.
+Diese Ausgabe deckt sich auch mit der der State-Space-Search, weshalb ich deren Ausgabe hier weglasse.
 
 \subsubsection{Beispiel 1}
 Eine Situation mit mehr als einem Feuer bei der ersten Beobachtung\footnote{Diese Eingabe finden Sie auch in der Datei \texttt{1.in}}:
 {\small
 \lstinputlisting{../Aufgabe_1/1.in}
 }
-Mein Programm produziert folgende Ausgabe\footnote{Diese Ausgabe finden Sie auch in der Datei \texttt{1.out.tex}; Eine Datei \texttt{1.out} mit den ASCII-Escape-Sequenzen exisitert ebenfalls.}:\\
+Die Heuristik produziert folgende Ausgabe\footnote{Diese Ausgabe finden Sie auch in der Datei \texttt{1.out.tex}; Eine Datei \texttt{1.out} mit den ASCII-Escape-Sequenzen exisitert ebenfalls.}:\\
 {\ttfamily \small
 \input{../Aufgabe_1/1.out.tex}
 }

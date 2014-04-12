@@ -1,0 +1,179 @@
+\section{Aufgabe 2 - Lebenslinien}
+\subsection{Lösungsidee}
+Die \emphpar{Lebenszeit} eines Menschen ist ein abgeschlossenes Intervall $L = [a,b]$ zwischen 2 Zeitpunkten $a, b$. Da es eine Bijektion $J$ gibt, welche jeder Zeit eine reelle Zahl zuordnet, lässt sich die Lebenszeit eines Menschen auch als Intervall $L' = [J(a),J(b)]$ von reellen Zahlen auffassen. Dies wird im Folgenden getan.\\
+Ein \emphpar{Lebensgraph} ist ein ungerichteter Graph $G = (V,E)$, auf dem eine Funktion $f$ \small{$ : V \mapsto P(\mathbb{R})$}
+\footnote{$P(\mathbb{R})$ beschreibt die Potenzmenge von $\mathbb{R}$, also die Menge aller Teilmengen von $\mathbb{R}$} definiert ist, welche jedem Knoten eine Lebenszeit eines Menschen, also ein Intervall reeller Zahlen zuordnet und zusätzlich $\forall u,v \in V: (u,v) \in E \Leftrightarrow f(u) \cap f(v) \not= \emptyset $ gilt. Es gibt also genau dann eine Kante zwischen 2 Knoten, wenn der Schnitt der beiden Lebenszeiten der Knoten nicht leer ist, es also einen Zeitpunkt gibt, zudem beide Menschen gelebt haben.
+
+Aufgabe ist es nun, für einen gegebenen ungerichteten Graphen $G = (V,E)$ zu prüfen, ob es eine Funktion $f$ \small{$ : V \mapsto P(\mathbb{R})$} gibt, sodass $G$ Lebensgraph wird.\\
+Dabei soll, sofern es ein solches $f$ gibt, $f(v)$ für alle Knoten $v \in V$ ausgegeben werden, andernfalls soll der minimale Subgraph von $G$ ausgegeben werden, für welchen allein es kein solches $f$ geben kann.
+
+\begin{center}
+\begin{figure}[h]
+\begin{tikzpicture}[scale=0.75,transform shape]
+  \SetVertexNormal[Shape      = rectangle]
+  \Vertex[x=10,y=5,L={F. E. Allen, *1932}]{A}
+  \Vertex[x=14,y=2,L={M. Mayer, *1975}]{B}
+  \Vertex[x=14,y=-2,L={M. Grewing, *19.12.1992}]{C}
+  \Vertex[x=10,y=-5,L={A. Borg, 1949-2003}]{D}
+  \Vertex[x=6,y=-2,L={A. Goldstine, 1920-1964}]{E}
+  \Vertex[x=6,y=2,L={G. Hopper, 1906-1.1.1992}]{F}
+  \Vertex[x=0,y=0,L={A. Lovelace, 1815-1852}]{G}
+  \tikzstyle{LabelStyle}=[fill=white,sloped]
+  \Edge(A)(B)
+  \Edge(B)(C)
+  \Edge(C)(D)
+  \Edge(D)(E)
+  \Edge(E)(F)
+  \Edge(A)(F)
+  \Edge(A)(D)
+  \tikzstyle{EdgeStyle}=[bend left]
+  \Edge(B)(F)
+  \Edge(A)(E)
+  \tikzstyle{EdgeStyle}=[bend right]
+  \Edge(B)(D)
+  \Edge(A)(C)
+  \Edge(D)(F)
+\end{tikzpicture}
+\caption{Der Lebensgraph aus der Aufgabenstellung}
+\end{figure}
+\end{center}
+
+Im Folgenden wird nur von zusammenhängenden Graphen ausgegangen. Für aus mehreren Zusammenhangskomponenten bestehende Graphen lässt sich die Berechnung für jede dieser einzeln durchführen, eventuell muss allen einer Komponente zugewiesenen Intervalle eine reelle Konstante addiert werden, dies ändert jedoch nichts an der eigentlichen Lösung.
+
+\subsubsection{Eigenschaften von Lebensgraphen}
+
+Es ist leicht ersichtlich, dass ein naiver Algorithmus zur Prüfung eines Graphen auf Lebensgrapheneigenschaft, also ein Algorithmus der alle möglichen zeitlichen Anordnungen der Knoten zueinander  durchprobiert, nicht zum Ziel führt, da dieser mit einer grob approximierten Laufzeit von $\mathcal{O(V!)}$ wohl zu langsam ist.
+
+Zur Überprüfung eines Graphen, ob dieser ein Lebensgraphen ist, ist es daher zunächst hilfreich sich Lebensgraphen etwas genauer zu betrachten. Es fällt zunächst auf, dass ein Graph, in dem ein \emphpar{Loch}\footnote{Ein Loch ist dabei ein Zyklus mit einer Länge größer 3, zwischen dessen einzelnen Knoten nur eine Kante existiert, wenn diese auch im Zyklus existiert.} auftritt niemals Lebensgraph sein kann:
+\begin{center}
+\begin{figure}[h]
+\begin{tikzpicture}[scale=0.75,transform shape]
+
+  \Vertex[x=0,y=0]{A}
+  \Vertex[x=4,y=0]{B}
+  \Vertex[x=4,y=4]{C}
+  \Vertex[x=0,y=4]{D}
+  
+  \Vertex[x=8,y=1]{E}
+  \Vertex[x=11,y=-1]{F}
+  \Vertex[x=14,y=1]{G}
+  \Vertex[x=12.5,y=4]{H}
+  \Vertex[x=9.5,y=4]{I}
+  \Vertex[x=10.5,y=3]{J}
+  \tikzstyle{LabelStyle}=[fill=white,sloped]
+  \Edge(A)(B)
+  \Edge(B)(C)
+  \Edge(C)(D)
+  \Edge(D)(A)
+  
+  
+  \Edge(E)(F)
+  \Edge(F)(G)
+  \Edge(G)(H)
+  \Edge(H)(I)
+  \Edge(I)(E)
+  \Edge(I)(J)
+\end{tikzpicture}
+\caption{Graphen mit Löchern können niemals Lebensgraph sein \textit{(im 2. Graphen ist $J$ \textbf{nicht} Teil des Loches)}}
+\end{figure}
+\end{center}
+
+Der Grund hierfür ist offensichtlich: Sei $Z = (v_i,v_k,...,v_i)$ ein Zyklus der Länge größer 3 eines Graphen $G = (V,E)$, und gelte für $G$: zwischen 2 Knoten aus $Z$ existiert nur genau dann eine Kante in $G$, sofern diese beiden Knoten im Zyklus nacheinander durchlaufen werden; bei $Z$ handelt es sich also um ein Loch von $G$.
+
+Weise man einem Knoten $v_i \in Z$ nun ein Intervall $I_0 = [a_0,b_0]$ zu. 
+Nun muss dem Nachfolger $v_{i_1}$ von $v_i$ im Zyklus $Z$ ein Intervall $I_1 = [a_1,b_1]$ zugewiesen werden, wobei entweder $a_0 < a_1 \leq b_0 < b_1$ oder $a_1 < a_0 \leq b_1 < b_0]$ gelten muss, da in $G$ zwischen $v_i$ und $v_{i_1}$ eine Kante existiert. Hat man sich jedoch für einen dieser beiden Fälle entschieden, so muss man sich bei der Zuweisung von Intervallen zu den nächsten Knoten in $Z$ immer für diesen Fall entscheiden. Sonst würde man Intervalle erhalten, welche einen nichtleeren Schnitt besitzen, deren Knoten in $G$ jedoch nicht durch eine Kante verbunden sind. Dies wäre ein Widerspruch zur Definition eines Lebensgraphen.\\
+Setzt man diese Zuweisungen jedoch bis zum Ende des Zyklus fort, so erhält man zwangsläufig ein Problem mit der Kante zwischen dem Knoten $v_i$ und seinem Vorgänger im Zyklus $Z$. In jedem Fall muss der Schnitt der diesen beiden Knoten zugewiesenen Intervalle nach Konstruktion leer sein, da man ansonsten bei einem vorangegangenen Schritt einen Widerspruch zur Definition eines Lebensgraphen erhalten hatte. Dies an sich stellt jedoch auch einen Widerspruch dar, da diese beiden Konten in $G$ mit einer Kante verbunden sind.
+
+Somit hat ein Lebensgraph kein Loch. \\
+Graphen ohne Löcher werden in der Literatur \emphpar{Chordalgraph} oder \emph{Triangulierter Graph}\footnote{Der englischsprachige Wikipediaartikel ist in diesem Fall (mal wieder) deutlich informativer: \url{https://en.wikipedia.org/wiki/Chordal_graph}} genannt, es gibt effiziente Algorithmen zur Erkennung solcher Graphen.
+
+Es sei an dieser Stelle angemerkt, dass ein Lebensgraph sehr wohl \emphpar{Dreiecke}, also Zyklen der Länge 3 haben darf. Dies liegt insbesondere daran, dass ein Dreieck eine \emphpar{Clique} der Größe 3 bildet, jeder der 3 Knoten also mit jedem anderen der 3 Knoten verbunden ist. Speziell bei Dreiecken muss es also einen Zeitpunkt geben, an dem alle 3 entsprechenden Menschen gelebt haben.
+
+Weiterhin ist es für einen Lebensgraphen nur \emph{notwendig} Chordalgraph zu sein. Betrachte man folgenden Graphen, der Chordalgraph ist, jedoch nicht Lebensgraph sein kann:
+
+\begin{center}
+\begin{figure}[h]
+\begin{tikzpicture}[scale=0.75,transform shape]
+
+  \Vertex[x=2,y=0]{A}
+  \Vertex[x=4,y=0]{B}
+  \Vertex[x=8,y=0]{C}
+  \Vertex[x=10,y=0]{D}
+  \Vertex[x=6,y=0]{G}
+  \Vertex[x=6,y=3]{E}
+  \Vertex[x=10,y=3]{F}
+  
+  \tikzstyle{LabelStyle}=[fill=white,sloped]
+  \Edge(A)(B)
+  \Edge(B)(G)
+  \Edge(C)(G)
+  \Edge(C)(D)
+  \Edge(G)(E)
+  \Edge(F)(E)
+\end{tikzpicture}
+\caption{Chordalgraph, der \textbf{kein} Lebensgraph ist}
+\end{figure}
+\end{center}
+
+Es gilt nun also ein \emph{hinreichendes Kriterium} für Lebensgraphen zu finden.
+
+Sei dazu der \emph{Komplementärgraph} $\overline{G}$\footnote{$\overline{G}$ besitzt die selben Knoten wie $G$, $\overline{G}$ hat jedoch nur genau dann eine Kante zwischen zwei Knoten, wenn zwischen diesen Knoten in $G$ keine Kante ist.} eines Lebensgraphen $G$ betrachtet. Ist zwischen 2 Knoten $v_i, v_j$ in $\overline{G}$ nun eine Kante, so bedeutet dies für den Schnitt der diesen Knoten zugeordneten Lebenszeiten  $I_{v_i}, I_{v_j}$, dass dieser leer ist,  $I_{v_i} \cap I_{v_j} = \emptyset$. Somit muss sich also eines dieser beiden Lebenszeiten $I_{v_i}, I_{v_j}$ auf der reellen Zahlengeraden vor dem anderen befinden. Dabei sei durch $I_{v_i} <_I  I_{v_j}$ beschrieben, dass sich das Intervall $I_{v_j}$ nach dem Intervall $ I_{v_i}$  auf der reellen Zahlengeraden befindet.\\
+Für den Graphen $\overline{G} = (V,\overline{E})$ ist also eine Halbordnung $<_I$ definiert, mit $\forall v_i, v_j \in V: (v_i,v_j) \in \overline{E} \Leftrightarrow (I_{v_i} <_I I_{v_j} \vee I_{v_j} <_I I_{v_i})$.
+
+Bei dem Graphen $\overline{G}$ zusammen mit der Halbordnung $<_I$ spricht man in der Literatur\footnote{\url{https://de.wikipedia.org/wiki/Vergleichbarkeitsgraph}} von \emphpar{Vergleichbar\-keitsgraph}.
+
+Es ist nun möglich zu zeigen, dass ein Lebensgraph genau derjenige Graph ist, der ein Chordalgraph ist, und dessen Komplementärgraph ein Vergleichbarkeitsgraph mit obiger Halbordnung ist. Auf den Beweis sei an dieser Stelle verzichtet, dieser kann in der Literatur\footnote{Gilmore, P. C.; Hoffman, A. J. (1964), "\phantom{,}A characterization of comparability graphs and of interval graphs", Canadian Journal of Mathematics 16: 539–548, \url{http://cms.math.ca/cjm/v16/cjm1964v16.0539-0548.pdf}. (Der Beweis ist eine direkte Schlussfolgerung aus Theorem 2, zusammen mit Theorem 1 und der definierenden Eigenschaft von Chordalgraphen; Lebensgraphen heißen dort \emph{Intervallgraphen})} nachgelesen werden. 
+
+\subsubsection{Algorithmische Erkennung von Lebensgraphen}
+
+Der vorangegangene Abschnitt liefert nun einen direkten Algorithmus zur Überprüfung, ob ein Graph ein Lebensgraph ist. Zunächst wird überprüft, ob der gegebene Graph ein Chordalgraph ist, dann wird überprüft, ob der Komplementärgraph ein Vergleichbarkeitsgraph ist.\\
+Idealerweise sollte bei der Überprüfung gleich eine mögliche Zuordnung von Lebenszeiten bzw. Intervallen zu Knoten abfallen, auch wenn dies noch nicht direkt ersichtlich ist.
+
+Die Überprüfung, ob ein gegebener Graph ein Chordalgraph ist, kann mithilfe einer \emph{lexikografischen Breitensuche}\marginpar{Lex-BFS} (im Folgenden Lex-BFS) geschehen. Dabei ist eine Lex-BFS ähnlich einer normalen Breitensuche. Anstatt einer Warteschlange (Queue) verwendet die Lex-BFS jedoch eine geordnete Folge von Knotenmengen. Die Lex-BFS wird speziell dazu benutzt, eine spezielle \emph{Abfolge} der Knoten zu erhalten, mit welcher im Folgenden dann weiter operiert werden kann.
+
+\lstset{language=[Sharp]C}
+\begin{lstlisting}
+//Lex-BFS
+//Eingabe: Graph G = (V,E), Knoten seien durchnummeriert 0..|V|-1
+//Ausgabe: Reihenfolge der Knoten
+
+begin
+  int[] ausgabe := int[|V|];
+  
+  Liste<int> L	:= V; //Initiale Anordnung der Knoten (L[i] = i)
+  
+  Liste<int>[] S := {L};//Klassen
+    
+  int cnt = |V| - 1;  //Zähler für Ausgabe
+  while S != { } do begin
+    int x := letztes Element der letzten Klasse in S;
+    entferne x aus der letzten Klasse in S,
+       wird diese Klasse dadurch leer, entferne diese aus S;
+  	
+    ausgabe[x] := cnt; cnt := cnt - 1;
+    
+    //Klassen werden in 2 Teilklassen aufgespalten:
+    //diejenigen Knoten, die Nachbar von x sind, 
+    //und die, die es nicht sind
+ 
+    foreach Liste<int> i in S do begin
+      nachbarn := { Knoten in i, die benachbart zu x };
+      nicht_nachbarn := i \ nachbarn;
+    	
+      //Ordne Nachbarn vor Nicht-Nachbarn in S    
+      ersetzte { i } durch { nachbarn , nicht_nachbarn } in S;
+   	    //Ignoriere leere Mengen
+    end;
+  end;
+  return ausgabe;
+end.
+\end{lstlisting}
+
+\subsection{Laufzeitanalyse}
+
+\subsection{Erweiterungen}
+
+
+ \subsection{Umsetzung}
+\subsection{Beispiele}
+\subsection{Quelltext}
