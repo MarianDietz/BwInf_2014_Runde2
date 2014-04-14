@@ -15,7 +15,6 @@ public:
   };
 int dir[4][2] = {{1,0},{0,1},{-1,0},{0,-1}};
 
-std::vector<Point> Solution;
 std::FILE* OUT;                                                 // The file to mirror the output to
 void (*printSolution)(std::FILE*, bool);
 
@@ -80,13 +79,8 @@ void printSolution_TEX(std::FILE* f, bool finalOut) {
 	else if(acField & BURNABLE)
 	  std::fprintf(f, "\\color[gray]{0.75}");
 	  
-	if(acField & WATERED){
-	  for (int t = 0; t < Solution.size(); ++t)
-	    if (Solution[t].x == i && Solution[t].y == j) {
-	      std::fprintf(f, "\\textbf{\\texttt{%02d}}",t+1);
-	      break;
-	    }	  
-	}
+	if(acField & WATERED)
+	  std::fprintf(f, "\\textbf{\\texttt{%02d}}",acField >> 4);
 	else if(acField & COAL)
 	  std::fprintf(f, "\\textbf{\\texttt{CO}}");
 	else if(acField & BURNED)
@@ -117,14 +111,14 @@ void printSolution_TEX(std::FILE* f, bool finalOut) {
 }
 
 void printSolution_TERMINAL(std::FILE* f, bool finalOut) {	
-  fprintf(f, "\n");
+  std::fprintf(f, "\n");
   //The ASCII-magic starts here:
   for(int j= 0; j < Forest.height(); ++j) {
     for(int i= 0; i < Forest.width(); ++i) {
       FIELDSTATE acField = Forest(i, j);
       int waterval = 0;
       
-      fprintf(f, "\x1b[s  ");
+      std::fprintf(f, "\x1b[s  ");
       if (acField == EMPTY)
 	std::fprintf(f, "\x1b[u\x1b[37;47mWA");
       if (acField & BURNABLE)
@@ -134,11 +128,7 @@ void printSolution_TERMINAL(std::FILE* f, bool finalOut) {
       if (acField & COAL)
 	std::fprintf(f, "\x1b[u\x1b[1;4;5;30m/\\");
       if (acField & WATERED)
-	for (int t = 0; t < Solution.size(); ++t)
-	  if (Solution[t].x == i && Solution[t].y == j) {
-	    std::fprintf(f, "\x1b[u\x1b[46m%02d", t+1);
-	    break;
-	  }
+	std::fprintf(f, "\x1b[u\x1b[46m%02d", acField >> 4);
       std::fprintf(f, "\x1b[0;39;49m");
     }
    

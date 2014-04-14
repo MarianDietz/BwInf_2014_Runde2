@@ -65,13 +65,6 @@ Point getOptimalWaterSpot(std::vector<Point>& candidates){
   
   std::sort(waterval.begin(),waterval.end(),std::greater<PII>());
   
-  //BEGIN HOTFIX
-  for(int i = 0; i < waterval.size(); ++i)
-    for(int j = 1; j < candidates.size(); ++j)
-      if(farthDist[waterval[i].second][j] > 1)
-	return candidates[waterval[i].second];
-  //END HOTFIX
-  
   return candidates[waterval[0].second];
 }
 
@@ -127,8 +120,7 @@ void simulateFire(const std::vector<Point>& initiallyBurningFields) {
     burnedFields = newBurnedFields;
         
     Point toWater = getOptimalWaterSpot(newBurnedFields); // Determine the field to water
-    Forest(toWater.x, toWater.y) |= WATERED;              // ... and water it
-    Solution.push_back(toWater);
+    Forest(toWater.x, toWater.y) |= (WATERED | (time << 4));              // ... and water it
     
     
     //Output / mirror the partial solution

@@ -1,6 +1,9 @@
 #include <vector>
+#include <string>
 
-#define FIELDSTATE 	char
+typedef unsigned short u16;
+
+#define FIELDSTATE 	u16
 #define EMPTY		0
 #define BURNABLE	1
 #define BURNED		2
@@ -22,4 +25,9 @@ public:
   FIELDSTATE operator() (int x,  int y) const;
   
   bool operator==(const Woods& o) const;
+  bool operator<(const Woods& o) const;
+  
+  std::string string() const;
+  int cnt() const;
+  int cnt2() const;
 };
