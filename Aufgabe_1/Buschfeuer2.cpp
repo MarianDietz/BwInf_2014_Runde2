@@ -45,8 +45,10 @@ std::pair<Woods,std::vector<Point>> getNextState(const Woods& w){
 	  if(w(x,y) & BURNED && !(w(x,y) & WATERED))
 	    startsBurning = true;
 	}
-	if(startsBurning)
+	if(startsBurning){
 	  ret(i,j) |= BURNED;
+	  pnts.push_back(Point(i,j));
+	}
       }
       else if(w(i,j) & BURNED && !(w(i,j) & WATERED))
 	ret(i,j) |= COAL;
@@ -96,7 +98,9 @@ int main(int argc, char ** argv){
     
     auto next = getNextState(acForest); 
     
-    if(acForest.cnt() <= acSkipped){ //Fire can be dead by this time
+    
+    if(acForest.cnt() <= acSkipped)
+    { //Fire can be dead by this time
       //Reconstruct and output Solution
       
       Forest = acForest;
@@ -124,7 +128,7 @@ int main(int argc, char ** argv){
 	  }
 	  else if ((Forest(i,j) & COAL) && !( Forest(i,j) & WATERED) )
 	    ccnt++;
-        
+	  
       std::printf("Water always optimally (to save water)...\nand you'll find %i pieces of coal and %i pieces of watered coal\n",ccnt,acDis-acSkipped -1);  
 
       if(printSolution != dontPrintSolution)
@@ -133,8 +137,8 @@ int main(int argc, char ** argv){
 	std::fprintf(OUT, "Water always optimally (to save water)...\nAnd you'll find %i pieces of coal and %i pieces of watered coal\n",ccnt,acDis- acSkipped-1);
 	printSolution(OUT, true);
       }
-      
-      break;
+      continue;
+//       break;
     }
     
     q.push(sssType(acDis + 1,acSkipped + 1, next.first));

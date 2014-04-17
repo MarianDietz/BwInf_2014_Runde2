@@ -27,6 +27,8 @@ Nach der Feuerausbreiteung muss jedes Feld der Umgebung eines verkohlten Feldes 
 
 Es ist leicht zu erkennen, dass es die Lösung nicht verschlechtert, wenn ab der 2. Beobachtung bei jeder Beobachtung 1 brennendes Feld gelöscht wird. Daher wird im Folgenden davon ausgegangen, dass bei jeder Beobachtung (ab der 2.) 1 brennendes Feld gelöscht wird. Es gilt nun also für jede dieser Beobachtungen dasjenige brennende Feld zu finden, durch dessen Löschung die Anzahl der im Folgenden (nicht unbedingt unmittelbar folgend) zu brennen anfangenden Felder minimiert.
 
+Im Folgenden wird davon ausgegangen, dass bei jeder Beobachtung ein Feld gelöscht wird.
+
 \subsubsection*{Brute-Force}
 
 Wie bei allen Problemen, ist natürlich auch bei diesem ein Brute-Force-Ansatz denkbar.\\
@@ -60,11 +62,22 @@ Dass es sich überhaupt lohnen kann, brennbare Felder zu Löschen, wird mit Beis
 
 \paragraph{Korrektheit}
 
-Im Folgenden wird davon ausgegangen, dass bei jeder Beobachtung ein Feld gelöscht wird.
-
 Es genügt zu zeigen, dass es keine zwei Lösungen geben kann derart, dass die eine Lösung das Feuer nach $k_1$ Löschungen und die andere nach $k_2 > k_1$ Löschungen komplett löscht, und dass die Anzahl der insgesamt verbrannten Felder bei der 2. Lösung geringer ist als bei der ersten. 
 
-Angenommen $L_1$ und $L_2$ seien 2 Löschungen dieser Art, d.h. für die Anzahl der insgesamt verbrannten Felder $A$ gilt $A(L_1) > A(L_2)$ und bei $L_2$ wurden insgesamt mehr Felder gelöscht.
+Angenommen $L_1$ und $L_2$ seien 2 Lösungen dieser Art, d.h. für die Anzahl der insgesamt verbrannten Felder $A$ gilt $A(L_1) > A(L_2)$ und bei $L_2$ wurden insgesamt mehr Felder gelöscht.
+
+\subparagraph{Fall 1: $L_2$ enthält gelöschte Felder, welche nur von noch nie brennenden Feldern umgeben sind.} 
+
+Existieren derartige Felder in $L_2$, so sind die Löschungen, die diese Felder löschen überflüssig, d.h., es wäre höchstens besser gewesen bei den entsprechenden Beobachtungen ein anderes Feld zu löschen. Sei daher davon ausgegangen, dieser Fall existierte nicht.\\
+Sei auch weiterhin davon ausgegangen, dass wenn sich das gesamte Feuer nicht weiter ausbreitet, dass dann keine weiteren Felder mehr gelöscht werden; dies wäre Wasserverschwendung. Konsequenterweise seinen diese Einschränkungen auch bei $L_1$ angewandt.
+
+\subparagraph{Fall 2: Jedes gelöschte Feld in $L_2$ enthält mindestens 1 Feld in seiner Umgebung, welches bei mindestens einer Beobachtung brannte.} 
+
+Die State-Space-Serach findet die Lösung $L_1$. Da $L_2$ mehr Löschungen enthält, muss das Feuer über mehr Beobachtungen hin gebrannt haben als bei $L_1$.\\
+Von einer Beobachtung zur nächsten vergrößert sich das Feuer um mindestens 1 Feld, da es sonst gelöscht ist. Vergrößert es sich jedoch um genau 1 Feld, so kann es bei der nächsten Beobachtung gelöscht werden. Damit bei $L_2$ insgesamt weniger Felder abbrennen, muss sich das Feuer bei $L_2$ durchschnittlich weniger ausgebreitet haben als bei den Löschungen von $L_1$.\\
+Weiterhin kann sich das Feuer nicht beliebig ausbreiten, zum Einen, da der Wald endlich ist, zum Anderen da das gesamte Feuer gelöscht wird.
+
+Daraus ergibt sich trivialerweise, dass auch dieser Fall nicht eintreten kann. Somit ist der Algorithmus korrekt.
 
 \paragraph{Laufzeitanalyse}
 
@@ -151,7 +164,7 @@ SimuliereFeuer() { //Die eigentliche Berechnung
 
 Bei dieser Heuristik ist es auch offensichtlich, dass es nicht sinnvoll ist, brennbare Felder für die Löschung in Betracht zu ziehen. Brennbare Felder werden trivialerweise immer ein geringeres oder gleiches $\mu$ besitzen als ein direkt benachbartes brennendes Feld, da für brennbare Felder nicht diejenigen Felder berücksichtigt werden dürfen, welche vor dem betrachteten Feld abbrennen, da dies sonst mit der inhaltlichen Erklärung im Widerspruch steht und das $\mu$ sonst eine total willkürliche Zahl wäre und sich aus dieser keine Informationen herauslesen lassen würden.
 
-\subsubsection{Korrektheit}
+\paragraph{Korrektheit}
 Wie schon beschrieben, wird bei jeder Beobachtung das für diese Beobachtung nach $\mu$ beste Feld zum Löschen ausgewählt.\\
 Es gilt also zu zeigen, dass insgesamt nicht weniger Felder abbrennen, sollte bei einer Beobachtung nicht das für diese Beobachtung nach $\mu$ optimalste Feld gelöscht werden. 
 
@@ -171,7 +184,7 @@ Eine bessere Löschung:
 
 Der Algorithmus ist also nicht optimal, es handelt sich um eine Heuristik. Dabei liefert sie bei vielen Eingaben \emph{ziemlich} gute Ergebnisse\footnote{Siehe dazu Sektion Beispiele}.
 
-\subsubsection{Laufzeitanalyse}
+\paragraph{Laufzeitanalyse}
 Wie schon gesehen, haben der Brute-Force-Ansatz und die State-Space-Search schlimmstenfalls exponentielle Laufzeit, im Gegensatz zur Heuristik, wie im Folgenden gezeigt wird.
 
 Eine Breitensuche hat eine Laufzeit von $\mathcal{O}(V + E)$ in einem Graphen mit $E$ Kanten und $V$ Knoten. Speziell hat der Graph bei dieser Aufgabe $n\cdot m$ Knoten und $(n-1)\cdot (m-1)$ Kanten.\\

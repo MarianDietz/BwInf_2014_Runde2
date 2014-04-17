@@ -169,9 +169,32 @@ begin
 end.
 \end{lstlisting}
 
+Eine \emph{perfekte Eliminationsordnung eines Graphen $G = (V,E)$}\marginpar{perfekte Eliminationsordnung} heißt eine Anordnung $A$ der Knoten $V$, sodass für jeden Konten $v \in V$ gilt:\\
+$v$ und die Nachbarn von $v$, die nach $v$ in $A$ auftreten, bilden eine \emph{Clique} in $G$.
+
+Ein Satz über Chordalgraphen besagt, dass ein Graph $G$ genau dann ein Chordalgraph ist, wenn $G$ eine perfekte Eliminationsordnung besitzt.\\
+Auch kann bewiesen werden, dass die Lex-BFS bei einem Chordalgraphen $G$ eine perfekte Eliminationsordnung von $G$ erzeugt.\\
+Speziell für die Überprüfung von Graphen auf Chordalität muss also nur noch die von der Lex-BFS erzeugte Abfolge der Knoten darauf hin überprüft werden, ob diese eine perfekte Eliminationsordnung ist.
+
+Dies kann beispielsweise mit folgendem Algorithmus geschehen:
+
+\begin{lstlisting}
+
+\end{lstlisting}
+
 \subsection{Laufzeitanalyse}
 
+\subsection{Weitere Lösungsideen}
+
+Neben der Erkennung mithilfe einer Lex-BFS sind durchaus auch andere Methoden denkbar. So kann man auch mithilfe eines PQ-Baumes diese Erkennung vornehmen\footnote{ }
+
 \subsection{Erweiterungen}
+
+\subsection{Bewertungskriterien}
+
+\begin{itemize}
+\item Für die Erkennung von Lebensgraphen bzw. \emph{Intervallgraphen} lassen sich leicht Algorithmen im Internet finden. Das zur Erkennung dieser verwendete Verfahren sollte daher auf jeden Fall nicht wesentlich langsamer sein als solche leicht findbaren Algorithmen.
+\end{itemize}
 
 
  \subsection{Umsetzung}
