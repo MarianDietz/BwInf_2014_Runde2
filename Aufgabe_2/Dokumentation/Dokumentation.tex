@@ -115,19 +115,16 @@ Weiterhin ist es für einen Lebensgraphen nur \emph{notwendig} Chordalgraph zu s
 \end{figure}
 \end{center}
 
-Es gilt nun also ein \emph{hinreichendes Kriterium} für Lebensgraphen zu finden.
+Es gilt nun also ein \emph{hinreichendes Kriterium} dafür zu finden, ob ein Graph $G$ ein Lebensgraph ist.
 
-Sei dazu der \emph{Komplementärgraph} $\overline{G}$\footnote{$\overline{G}$ besitzt die selben Knoten wie $G$, $\overline{G}$ hat jedoch nur genau dann eine Kante zwischen zwei Knoten, wenn zwischen diesen Knoten in $G$ keine Kante ist.} eines Lebensgraphen $G$ betrachtet. Ist zwischen 2 Knoten $v_i, v_j$ in $\overline{G}$ nun eine Kante, so bedeutet dies für den Schnitt der diesen Knoten zugeordneten Lebenszeiten  $I_{v_i}, I_{v_j}$, dass dieser leer ist,  $I_{v_i} \cap I_{v_j} = \emptyset$. Somit muss sich also eines dieser beiden Lebenszeiten $I_{v_i}, I_{v_j}$ auf der reellen Zahlengeraden vor dem anderen befinden. Dabei sei durch $I_{v_i} <_I  I_{v_j}$ beschrieben, dass sich das Intervall $I_{v_j}$ nach dem Intervall $ I_{v_i}$  auf der reellen Zahlengeraden befindet.\\
-Für den Graphen $\overline{G} = (V,\overline{E})$ ist also eine Halbordnung $<_I$ definiert, mit $\forall v_i, v_j \in V: (v_i,v_j) \in \overline{E} \Leftrightarrow (I_{v_i} <_I I_{v_j} \vee I_{v_j} <_I I_{v_i})$.
+Seien dazu die \emphpar{maximalen Cliquen} in $G$ betrachtet. Eine Clique $C$ eines Graphen $G = (V,E)$ heißt dabei maximal, wenn es keinen Knoten $v \in V\setminus C$ gibt, sodass $C \cup \{ v \}$ eine Clique in $G$ bildet; wenn also das Hinzufügen eines beliebigen weiteren Knotens des Graphen zu der Clique $C$ bewirkt, dass $C$ keine Clique mehr ist.
 
-Bei dem Graphen $\overline{G}$ zusammen mit der Halbordnung $<_I$ spricht man in der Literatur\footnote{\url{https://de.wikipedia.org/wiki/Vergleichbarkeitsgraph}} von \emphpar{Vergleichbar\-keitsgraph}.
-
-Es ist nun möglich zu zeigen, dass ein Lebensgraph genau derjenige Graph ist, der ein Chordalgraph ist, und dessen Komplementärgraph ein Vergleichbarkeitsgraph mit obiger Halbordnung ist. Auf den Beweis sei an dieser Stelle verzichtet, dieser kann in der Literatur\footnote{Gilmore, P. C.; Hoffman, A. J. (1964), "\phantom{,}A characterization of comparability graphs and of interval graphs", Canadian Journal of Mathematics 16: 539–548, \url{http://cms.math.ca/cjm/v16/cjm1964v16.0539-0548.pdf}. (Der Beweis ist eine direkte Schlussfolgerung aus Theorem 2, zusammen mit Theorem 1 und der definierenden Eigenschaft von Chordalgraphen; Lebensgraphen heißen dort \emph{Intervallgraphen})} nachgelesen werden. 
+Es kann gezeigt werden, dass Chordalgraphen $G_C = (V,E)$ genau diejenigen Graphen sind, bei denen sich eben diese maximalen Cliquen so in einem \emphpar{Cliquenbaum} $T$ anordnen lassen, so dass für jeden Knoten $v$ aus $V$ gilt, dass die Cliquen, in denen $v$ enthalten ist einen zusammenhängenden Teilbaum von $T$ bilden.\\
+Speziell bei Lebensgraphen vereinfacht sich dieser Baum jedoch zu einem Pfad, man kann die maximalen Cliquen also so anordnen, dass alle Cliquen, die einen Knoten $v$ enthalten in dieser Anordnung aufeinanderfolgend sind. Diese Anordnung sein im Folgenden mit \emphpar{Cliquenkette} beschrieben. Aus einer Cliquenkette lassen sich nun leicht Intervalle für Knoten ablesen, und umgekehrt, da zwei Konten nur in der selben Clique sind, wenn sie durch eine Kante verbunden sind, und ihnen so zurecht ein gemeinsamer Intervallabschnitt zugeordnet worden ist.
 
 \subsubsection{Algorithmische Erkennung von Lebensgraphen}
 
-Der vorangegangene Abschnitt liefert nun einen direkten Algorithmus zur Überprüfung, ob ein Graph ein Lebensgraph ist. Zunächst wird überprüft, ob der gegebene Graph ein Chordalgraph ist, dann wird überprüft, ob der Komplementärgraph ein Vergleichbarkeitsgraph ist.\\
-Idealerweise sollte bei der Überprüfung gleich eine mögliche Zuordnung von Lebenszeiten bzw. Intervallen zu Knoten abfallen, auch wenn dies noch nicht direkt ersichtlich ist.
+Der vorangegangene Abschnitt liefert nun einen direkten Algorithmus zur Überprüfung, ob ein Graph ein Lebensgraph ist. Zunächst wird überprüft, ob der gegebene Graph ein Chordalgraph ist, dann wird ein Cliquenbaum erzeugt, überprüft, ob dieser eine Cliquenkette ist und zuletzt wird überprüft, ob jeder Knoten nur in aufeinanderfolgenden Cliquen vorkommt. Die hierzu notwendigen Algorithmen\footnote{nach Habib, M., McConnell, R., Paul, C. und Viennot , L.: \textit{"Lex-BFS and partition reÿnement, with applications to transitive orientation, interval graph recognition and consecutive ones testing"}, erschienen in \texttt{Theoretical Computer Science 234 (2000)}, Seiten 59–84} werden nun im Folgenden vorgestellt.
 
 Die Überprüfung, ob ein gegebener Graph ein Chordalgraph ist, kann mithilfe einer \emph{lexikografischen Breitensuche}\marginpar{Lex-BFS} (im Folgenden Lex-BFS) geschehen. Dabei ist eine Lex-BFS ähnlich einer normalen Breitensuche. Anstatt einer Warteschlange (Queue) verwendet die Lex-BFS jedoch eine geordnete Folge von Knotenmengen. Die Lex-BFS wird speziell dazu benutzt, eine spezielle \emph{Abfolge} der Knoten zu erhalten, mit welcher im Folgenden dann weiter operiert werden kann.
 
@@ -174,15 +171,37 @@ $v$ und die Nachbarn von $v$, die nach $v$ in $A$ auftreten, bilden eine \emph{C
 
 Ein Satz über Chordalgraphen besagt, dass ein Graph $G$ genau dann ein Chordalgraph ist, wenn $G$ eine perfekte Eliminationsordnung besitzt.\\
 Auch kann bewiesen werden, dass die Lex-BFS bei einem Chordalgraphen $G$ eine perfekte Eliminationsordnung von $G$ erzeugt.\\
-Speziell für die Überprüfung von Graphen auf Chordalität muss also nur noch die von der Lex-BFS erzeugte Abfolge der Knoten darauf hin überprüft werden, ob diese eine perfekte Eliminationsordnung ist.
+Speziell für die Überprüfung von Graphen auf Chordalität muss also nur noch die von der Lex-BFS erzeugte Abfolge $PI$ der Knoten darauf hin überprüft werden, ob diese eine perfekte Eliminationsordnung ist.
 
-Dies kann beispielsweise mit folgendem Algorithmus geschehen:
+Dies kann beispielsweise mit folgendem Algorithmus geschehen, dabei seien mit $RN(v)$ die in der Eliminationsornung rechts gelegenen Nachbarknoten von $v$ bezeichnet und mit $P(v)$ der in der Eliminationsornung am weitesten links liegende Knoten von $RN(v)$.
 
 \begin{lstlisting}
-
+//Überprüfung einer Ordnung der Knoten V darauf, ob diese
+//eine perfekte Eliminationsordnung ist
+//Eingabe: Graph G = (V,E), Reihenfolge PI der Knoten V
+//Ausgabe: true, falls PI perfekte Eliminationsordnung, false sonst
+begin
+  Ermittle RN(v) und P(v) für jeden Knoten v;
+ 
+  foreach v in V do begin
+    if ( RN(v) \ P(v) ist keine
+      Teilmenge von RN(P(v)))
+        then return false;
+  end;
+  return true;
+end.
 \end{lstlisting}
 
+Obiger Algorithmus nutzt aus, dass bei einer perfekten Eliminationsordnung für jeden Knoten $v$ gilt, dass ${v} \cup RN(v)$ eine Clique bildet, somit muss auch $RN(v)$ eine Clique bilden.\\
+Deshalb muss $RN(v) \setminus P(v) \subseteq RN(P(v))$ für jeden Knoten $v$ gelten.\\
+Sollte es sich bei $PI$ nicht um eine perfekte Eliminationsordnung, so gibt es ein $v$, für dass ${v} \cup RN(v)$ keine Clique ist. Dies heißt aber im speziellen, dass $RN(v)$ keine Clique bilden und somit  $P(v)$ nicht mit allen Knoten aus $RN(v) \setminus P(v)$ durch eine Kante verbunden ist oder $RN(v) \setminus P(v)$ selbst keine Clique bildet. Der zweite Fall kann dann rekursiv weiter behandelt werden, bis einmal Fall 1 auftritt, dieser muss auftreten, da der betrachtete Graph endlich ist.\\
+Speziell bei Fall 1 enthält dann $RN(P(v))$ jedoch mindestens einen Knoten nicht, der in $RN(v) \setminus P(v)$ enthalten ist.\\
+Somit ist obiger Algorithmus also korrekt.
+
+Ist der eingegebene Graph nun ein Chordalgraph, so wird nun der Cliquenbaum erzeugt. Dazu kann man, das schon für den vorangegangenen Algorithmus für jeden Knoten $v$ definierte, $P(v)$ nutzen. Es ist leicht zu sehen, dass dieses $P(v)$ schon einen Baum impliziert. 
+
 \subsection{Laufzeitanalyse}
+
 
 \subsection{Weitere Lösungsideen}
 
@@ -194,6 +213,7 @@ Neben der Erkennung mithilfe einer Lex-BFS sind durchaus auch andere Methoden de
 
 \begin{itemize}
 \item Für die Erkennung von Lebensgraphen bzw. \emph{Intervallgraphen} lassen sich leicht Algorithmen im Internet finden. Das zur Erkennung dieser verwendete Verfahren sollte daher auf jeden Fall nicht wesentlich langsamer sein als solche leicht findbaren Algorithmen.
+\item Auch sollte bei der Verwendung von Werken aus dem Internet nicht auf eine angemessene Referenzierung verzichtet werden.
 \end{itemize}
 
 
