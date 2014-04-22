@@ -4,6 +4,8 @@
 #include <stack>
 #include <deque>
 #include <algorithm>
+#include <set>
+#include <queue>
 
 std::vector<std::vector<int> > G; //The Graph
 int N; //Graphsize
@@ -130,17 +132,8 @@ bool isChordal(std::vector<int> ordering){
   return true;
 }
 
-bool equals(std::vector<int>::iterator a1,std::vector<int>::iterator a2, std::vector<int>::iterator b1, std::vector<int>::iterator b2) {
-  if(std::distance(a2,a1) != std::distance(b2,b1))
-    return false;
-  
-  for(a1 != a2 && b1 != b2)
-    if(*(a1++) != *(b1) ++)
-      return false;
-    return true;
-}
-
-std::vector<std::pair<std::vector<std::vector<int> >, int > > getCliqueTree(std::vector<int> ordering) {
+std::vector<std::pair<std::vector<int>, int > > 
+getCliqueTree(std::vector<int> ordering) {
   std::vector<std::vector<int> > rightNeighs(N, std::vector<int> ()); //Neghbours to the right
   std::vector<std::vector<int> > T(N,std::vector<int>());
   
@@ -149,7 +142,6 @@ std::vector<std::pair<std::vector<std::vector<int> >, int > > getCliqueTree(std:
     int acnode = ordering[x];
     
     used[acnode] = true;
-    
     for(int i = 0; i < N; ++i)
       if(G[i][acnode] && used[i]){
 	if(rightNeighs[i].empty())
@@ -158,94 +150,176 @@ std::vector<std::pair<std::vector<std::vector<int> >, int > > getCliqueTree(std:
       }
   }  
   
-  std::stack<std::pair<int,bool> > s;
-  std::vector<int> cliquePar(N,-1);
-  std::vector<int> clique(N,-1);
-  int cCnt = -1;
+  std::stack<int> s;
+  std::vector<std::set<int> > clique(N,std::set<int>());
+  std::set<int> cliques;
+  
   for(int i = 0; i< N; ++i)
-    if(T[i].empty())
-      s.push(pair<int,bool>(i,true)); //push the tree roots
-  while(!s.empty()){
-    auto ac = s.top(); 
-    s.pop();
-    
-    if(!ac.second) {//foreach vertex except the roots
-      std::sort(++rightNeighs[ac.first].begin(),rightNeighs[ac.first].end());
-      auto cpy = {rightNeighs[rightNeighs[ac.first][0]].begin(), rightNeighs[rightNeighs[ac.first][0]].end()};
-      std::sort(cpy.begin(), cpy.end());
-      if(equals(cpy.begin(), cpy.end(), ++rightNeighs[ac.first].begin(),rightNeighs[ac.first].end() )) {
-	clique[ac.first] = ++cCnt;
-	cliquePar[cCnt] = clique[rightNeighs[ac.first][0]];
+    if(rightNeighs[i].empty()){
+      s.push(i); //push the tree roots
+      if(T[i].empty()) { //Is simple node
+	clique[i].insert(i);
+	cliques.insert(i);
       }
-      else
-	clique[x] = clique[rightNeighs[ac.first][0]];
     }
+  while(!s.empty()){
+    auto ac = s.top(); s.pop();
     
-    for(auto i : T[ac.first])
-      s.push(pair<int,bool>(i,false));
+    for(auto child : T[ac]) {
+      for(auto i : rightNeighs[child])
+	clique[child].insert(i);
+      clique[child].insert(child);
+      
+      auto acParent = rightNeighs[child][0];
+      
+      if(std::includes(clique[child].begin(),clique[child].end(),
+	 clique[acParent].begin(), clique[acParent].end()))
+	if(cliques.count(acParent))
+	  clique[acParent].erase(clique[acParent].find(acParent));
+      
+      cliques.insert(child);
+      
+      if(!T[child].empty())
+	s.push(child);
+    }
   }
-  
-  //reconstruct the tree cN²
-  
-  std::vector<std::pair<std::vector<std::vector<int> >, int > > T(cCnt, std::pair<std::vector<std::vector<int> >,int>());
-  
-  for(int i = 0; i < cCnt; ++i){
-    T[i].first.assign(N, vector<int>);
-    for(int j = 0; j < N; ++j)
-      if(clique[j] == i)
-	for(int k = 0; k < N; ++k)
-	  if(k != j && clique[k] == i)
-	    T[i].first[j].push_back(k);
-    T[i].second = cliquePar[i];
-  }
-  return T;
+    
+  std::vector<std::pair<std::vector<int>, int > > t;
+  for(int i = 0; i < N; ++i)
+    if(cliques.count(i) && clique[i].count(i)){
+      printf("In clique %d:", i);
+      for(auto k : clique[i])
+	printf(" %d", k);
+      printf("\n");
+      t.push_back(std::pair<std::vector<int>, int >({clique[i].begin(),clique[i].end()}, rightNeighs[i][0]));
+    }
+  return t;
 }
 
 //END
 
 //BEGIN Interval Graph Reckon'ing
 
-std::list<std::vector<int>> L; //clique chain
+std::deque<std::vector<int>> L; //clique chain
 
-bool isIntervalGraph(){
-//   auto T = LexBFS();
-//   
-//   auto X = T.first;
-//   
-//   std::list<int> L;
-//   for(int i = 0; i < (int)X.size(); ++i)
-//     L.push_back(i);
-//   std::vector<std::list<int>> classes;
-//   classes.push_back(L);
-//     
-//   stack<int> pivots;
-//   
-//   while(!classes.empty()){
-//     int ac = *(classes.rbegin()->rbegin());
-//     classes.rbegin()->pop_back();
-//     if(classes.rbegin()->empty())
-//       classes.pop_back();
-//     
-//     ret[ac] = cnt--;
-//     std::vector<std::list<int>> new_classes;
-//     for(auto i : classes){
-//       std::list<int> tmp_in, tmp_out;
-//       
-//       for(auto j : i)
-// 	if(G[j][ac]) //partion depending on whether neighbor of ac or not
-// 	  tmp_in.push_back(j);
-// 	else
-// 	  tmp_out.push_back(j);
-// 	
-//       if(!tmp_in.empty())
-// 	new_classes.push_back(tmp_in);
-//       if(!tmp_out.empty())
-// 	new_classes.push_back(tmp_out);
-//       
-//     }
-//     classes = new_classes;
-//   }
-  return false;
+bool isIntervalGraph(std::vector<int> ordering){
+  auto T = getCliqueTree(ordering);
+  
+  printf("Got t\n");
+  
+  std::list<std::pair<std::vector<int>,int> > l;
+  std::list<std::pair<int,int> > treeEdges;
+  for(int o = 0; o < T.size(); ++o){
+    auto i = T[o];
+    l.push_back(std::pair<std::vector<int>,int>(i.first,o));
+    treeEdges.push_back(std::pair<int,int>(o,i.second));
+  }
+  std::list<std::list<std::pair<std::vector<int>, int> > > classes;
+  classes.push_back(l);
+    
+  std::stack<int> pivots;
+  
+  std::vector<bool> used(N, false);
+  
+  while(!classes.empty()){
+    if(classes.rbegin()->size() == 1) {  //Skip classes containing only 1 element
+      L.push_front(classes.rbegin()->rbegin()->first);
+      classes.pop_back();
+      continue;
+    }
+    
+    std::set<int> C;
+    while(!pivots.empty() && used[pivots.top()])
+      pivots.pop();
+    
+    if(pivots.empty()){
+      auto Xc = *(classes.rbegin()->rbegin());
+      C.insert(Xc.second);
+      
+      L.push_front(Xc.first);
+      classes.rbegin()->pop_back();
+      if(classes.rbegin()->empty())
+	classes.pop_back();
+    }
+    else{
+      int x = pivots.top(); pivots.pop();
+      used[x] = true;
+      
+      auto Xa = classes.begin(), Xb = classes.begin();
+      bool Xaset = false;
+      
+      for(auto i = classes.begin(); i != classes.end(); ++i)
+	for(auto j : *i) {
+	  bool contains = false;
+	  for(auto k: j.first)
+	    if(k == x){
+	      contains = true;
+	      break;
+	    }
+	  if(contains)
+	    C.insert(j.second);
+	  
+	  Xb = i;
+	  if(!Xaset){
+	    Xa = i;
+	    Xaset = true;
+	  }
+	}
+	
+      //Partion Xa und Xb
+      std::list<std::pair<std::vector<int>, int>> tmp_inA, tmp_outA, tmp_inB, tmp_outB;
+      
+      for(auto i : (*Xa))
+	if(C.count(i.second))
+	  tmp_inA.push_back(i);
+	else
+	  tmp_outA.push_back(i);
+      for(auto i : (*Xb))
+	if(C.count(i.second))
+	  tmp_inB.push_back(i);
+	else
+	  tmp_outB.push_back(i);
+      
+      (*Xa) = tmp_outA;
+      classes.insert(Xa, tmp_inA);
+      
+      (*Xb) = tmp_outB;
+      classes.insert(Xb, tmp_inB);
+    }
+    
+    //Update Pivots
+    for(auto i = treeEdges.begin(); i != treeEdges.end(); ++i)
+      if(C.count(i->first) != C.count(i->second)){
+	treeEdges.erase(i);
+	std::set<int> Ci;
+	for(auto j : T[i->first].first)
+	  Ci.insert(j);
+	for(auto j : T[i->second].first)
+	  if(Ci.count(j))
+	    pivots.push(j);	
+      }
+  }
+  
+  printf("After queue\n");
+  
+  std::vector<bool> alive(N,false), ended (N,false);
+  
+  for(auto i : L){
+    std::vector<bool> seen (N, false);
+    for(auto j : i)
+      seen[j] = true;
+    
+    for(int j = 0; j < N; ++j)
+      if(ended[j] && seen[j])
+	return false;
+      else if(seen[j])
+	alive[j] = true;
+      else if(!seen[j] && alive[j]){
+	ended[j] = true;
+	alive[j] = false;
+      }
+  }
+  return true;
 }
 
 //END
@@ -263,6 +337,29 @@ int main(){
     
     //If the graph is not chordal, it has to contain a hole
     //Hole finding starts here therefore.
+    
+    return 0;
+  }
+  
+  if(isIntervalGraph(LO)){
+    
+    std::vector<int> start(N, -1), end(N, -1);
+    for(int i = 0; i < L.size(); ++i){
+      auto ac = L[i];
+      for(auto j : ac){
+	end[j] = i;
+	if(start[j] == -1)
+	  start[j] = i;
+      }
+    }
+    
+    printf("The graph is an interval graph:\n");
+    for(int i = 0; i < N; ++i)
+      printf("Node %d: 01.01.%4d - 01.01.%4d\n", i, 1900 + 2 * start[i], 1901 + 2 * start[i]);
+  }
+  else {
+    printf("The graph is not an interval graph.\n");
+    
     
     return 0;
   }
