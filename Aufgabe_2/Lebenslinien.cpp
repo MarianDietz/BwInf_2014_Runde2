@@ -11,9 +11,11 @@ std::vector<std::vector<int> > G; //The Graph
 int N; //Graphsize
 
 void readInput(){
+  std::printf("The graphsuze.\n");
   scanf("%i",&N);
   G.assign(N,std::vector<int>(N,0));
   
+  std::printf("%d lines à %d space seperated integers;\nthe graph as adjancy matrix.\n",N,N);
   //Read Graph stored in an Adjancy Matrix
   for(int i = 0; i < N; ++i)
     for(int j= 0; j < N; ++j)
@@ -24,24 +26,14 @@ void readInput(){
 //BEGIN lexicographic BFS
 
 std::vector<int> LexBFSOrder(){
- //   std::vector<int> ret(G.size(),-1);
-  
   std::list<int> L;
   for(int i = 0; i < (int)G.size(); ++i)
     L.push_back(i);
   std::deque<std::list<int>> classes;
   classes.push_back(L);
-    
- //   int cnt = G.size() - 1;
-  
   std::deque<int> ret;
   
   while(!classes.empty()){
- //     for(auto i : classes)
- //       for(auto j : i)
- //  	printf("%d ",j + 1);
- //      printf("\n");
-    
     int ac = *(classes.begin()->begin());
     classes.begin()->pop_front();
     if(classes.begin()->empty())
@@ -49,7 +41,6 @@ std::vector<int> LexBFSOrder(){
     
     ret.push_front(ac);
     
- //     ret[ac] = cnt--;
     std::deque<std::list<int>> new_classes;
     for(auto i : classes){
       std::list<int> tmp_in, tmp_out;
@@ -62,15 +53,11 @@ std::vector<int> LexBFSOrder(){
 	
       if(!tmp_in.empty())
 	new_classes.push_back(tmp_in);
-      
       if(!tmp_out.empty())
 	new_classes.push_back(tmp_out);
     }
-    
-    
     classes = new_classes;
   }
-  
   return {ret.begin(), ret.end()};
 }
 
@@ -96,21 +83,21 @@ bool isChordal(std::vector<int> ordering){
 	rightNeighs[i].push_back(acnode);
   }
   
-  printf("RN | RN(par)\n");
-  
-  for(int i = 0; i < N; ++i){
-    printf("%d:",i);
-    
-    for(auto j: rightNeighs[i])
-      printf(" %d",j);
-    printf(" |");
-    
-    if(rightNeighs[i].size() > 1)
-      for(auto j: rightNeighs[rightNeighs[i][0]])
-	printf(" %d",j);
-    
-    printf("\n");
-  }
+//   printf("RN | RN(par)\n");
+//   
+//   for(int i = 0; i < N; ++i){
+//     printf("%d:",i);
+//     
+//     for(auto j: rightNeighs[i])
+//       printf(" %d",j);
+//     printf(" |");
+//     
+//     if(rightNeighs[i].size() > 1)
+//       for(auto j: rightNeighs[rightNeighs[i][0]])
+// 	printf(" %d",j);
+//     
+//     printf("\n");
+//   }
   
   for(int x = 0; x < N; ++x){
     if(rightNeighs[x].size() <= 1)
@@ -185,13 +172,20 @@ getCliqueTree(std::vector<int> ordering) {
   }
     
   std::vector<std::pair<std::vector<int>, int > > t;
+  std::vector<int> num(N, -1);
+  int cnt = 0;
+  for(int i = 0; i < N; ++i)
+    if(cliques.count(i) && clique[i].count(i))
+      num[i] = cnt++;
   for(int i = 0; i < N; ++i)
     if(cliques.count(i) && clique[i].count(i)){
       printf("In clique %d:", i);
       for(auto k : clique[i])
 	printf(" %d", k);
       printf("\n");
-      t.push_back(std::pair<std::vector<int>, int >({clique[i].begin(),clique[i].end()}, rightNeighs[i][0]));
+      
+      int par = (rightNeighs[i].empty() ? -1 : num[rightNeighs[i][0]]);
+      t.push_back(std::pair<std::vector<int>, int >({clique[i].begin(),clique[i].end()}, par));
     }
   return t;
 }
@@ -205,14 +199,15 @@ std::deque<std::vector<int>> L; //clique chain
 bool isIntervalGraph(std::vector<int> ordering){
   auto T = getCliqueTree(ordering);
   
-  printf("Got t\n");
+  fflush(stdout);
   
   std::list<std::pair<std::vector<int>,int> > l;
   std::list<std::pair<int,int> > treeEdges;
-  for(int o = 0; o < T.size(); ++o){
+  for(size_t o = 0; o < T.size(); ++o){
     auto i = T[o];
     l.push_back(std::pair<std::vector<int>,int>(i.first,o));
-    treeEdges.push_back(std::pair<int,int>(o,i.second));
+    if(i.second >= 0)
+      treeEdges.push_back(std::pair<int,int>(o,i.second));
   }
   std::list<std::list<std::pair<std::vector<int>, int> > > classes;
   classes.push_back(l);
@@ -233,15 +228,18 @@ bool isIntervalGraph(std::vector<int> ordering){
       pivots.pop();
     
     if(pivots.empty()){
+      while(classes.rbegin()->empty())
+	classes.pop_back();
       auto Xc = *(classes.rbegin()->rbegin());
       C.insert(Xc.second);
+      
       
       L.push_front(Xc.first);
       classes.rbegin()->pop_back();
       if(classes.rbegin()->empty())
 	classes.pop_back();
-    }
-    else{
+      
+    } else {      
       int x = pivots.top(); pivots.pop();
       used[x] = true;
       
@@ -283,25 +281,27 @@ bool isIntervalGraph(std::vector<int> ordering){
       (*Xa) = tmp_outA;
       classes.insert(Xa, tmp_inA);
       
-      (*Xb) = tmp_outB;
-      classes.insert(Xb, tmp_inB);
+      (*Xb) = tmp_inB;
+      classes.insert(Xb, tmp_outB);
+      
     }
-    
+     
     //Update Pivots
-    for(auto i = treeEdges.begin(); i != treeEdges.end(); ++i)
+    for(auto i = treeEdges.begin(); i != treeEdges.end(); ++i){
       if(C.count(i->first) != C.count(i->second)){
-	treeEdges.erase(i);
 	std::set<int> Ci;
 	for(auto j : T[i->first].first)
 	  Ci.insert(j);
 	for(auto j : T[i->second].first)
 	  if(Ci.count(j))
-	    pivots.push(j);	
+	    pivots.push(j);
+	  
+	treeEdges.erase(i);	
+	--i;
       }
+    }
   }
-  
-  printf("After queue\n");
-  
+    
   std::vector<bool> alive(N,false), ended (N,false);
   
   for(auto i : L){
@@ -326,17 +326,18 @@ bool isIntervalGraph(std::vector<int> ordering){
 
 int main(){
   readInput();
-  auto LO = LexBFSOrder();
-  for(auto i : LO)
-    printf("%d ",i + 1);
-  printf("\n");
+  auto LO = LexBFSOrder(); 
   if(isChordal(LO))
     printf("The graph is chordal!\n");
   else{
     printf("The graph is not chordal.\n"); //Calculation stops here
     
-    //If the graph is not chordal, it has to contain a hole
-    //Hole finding starts here therefore.
+    auto G2 = G;
+    int N2 = N;
+    for(N = 4; N <= N2; ++N){ //try all size i subsets of the nodes
+      vector<bool> ac;
+      
+    }
     
     return 0;
   }

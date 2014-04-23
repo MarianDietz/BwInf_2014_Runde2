@@ -2,10 +2,10 @@
 \subsection{Lösungsidee}
 Die \emphpar{Lebenszeit} eines Menschen ist ein abgeschlossenes Intervall $L = [a,b]$ zwischen 2 Zeitpunkten $a, b$. Da es eine Bijektion $J$ gibt, welche jeder Zeit eine reelle Zahl zuordnet, lässt sich die Lebenszeit eines Menschen auch als Intervall $L' = [J(a),J(b)]$ von reellen Zahlen auffassen. Dies wird im Folgenden getan.\\
 Ein \emphpar{Lebensgraph} ist ein ungerichteter Graph $G = (V,E)$, auf dem eine Funktion $f$ \small{$ : V \mapsto P(\mathbb{R})$}
-\footnote{$P(\mathbb{R})$ beschreibt die Potenzmenge von $\mathbb{R}$, also die Menge aller Teilmengen von $\mathbb{R}$} definiert ist, welche jedem Knoten eine Lebenszeit eines Menschen, also ein Intervall reeller Zahlen zuordnet und zusätzlich $\forall u,v \in V: (u,v) \in E \Leftrightarrow f(u) \cap f(v) \not= \emptyset $ gilt. Es gibt also genau dann eine Kante zwischen 2 Knoten, wenn der Schnitt der beiden Lebenszeiten der Knoten nicht leer ist, es also einen Zeitpunkt gibt, zudem beide Menschen gelebt haben.
+\footnote{$P(\mathbb{R})$ beschreibt die Potenzmenge von $\mathbb{R}$, also die Menge aller Teilmengen von $\mathbb{R}$ (Es sei der Einfachheit der Schreibweise wegen angenommen, dass eine solche Potenzmenge existiert.)} definiert ist, welche jedem Knoten eine Lebenszeit eines Menschen, also ein Intervall reeller Zahlen zuordnet und zusätzlich $\forall u,v \in V: (u,v) \in E \Leftrightarrow f(u) \cap f(v) \not= \emptyset $ gilt. Es gibt also genau dann eine Kante zwischen 2 Knoten, wenn der Schnitt der beiden Lebenszeiten der Knoten nicht leer ist, es also einen Zeitpunkt gibt, zudem beide Menschen gelebt haben.
 
 Aufgabe ist es nun, für einen gegebenen ungerichteten Graphen $G = (V,E)$ zu prüfen, ob es eine Funktion $f$ \small{$ : V \mapsto P(\mathbb{R})$} gibt, sodass $G$ Lebensgraph wird.\\
-Dabei soll, sofern es ein solches $f$ gibt, $f(v)$ für alle Knoten $v \in V$ ausgegeben werden, andernfalls soll der minimale Subgraph von $G$ ausgegeben werden, für welchen allein es kein solches $f$ geben kann.
+Dabei soll, sofern es ein solches $f$ gibt, $f(v)$ für alle Knoten $v \in V$ ausgegeben werden, andernfalls soll der minimale Teilgraph von $G$ ausgegeben werden, für welchen allein es kein solches $f$ geben kann.
 
 \begin{center}
 \begin{figure}[h]
@@ -119,7 +119,7 @@ Es gilt nun also ein \emph{hinreichendes Kriterium} dafür zu finden, ob ein Gra
 
 Seien dazu die \emphpar{maximalen Cliquen} in $G$ betrachtet. Eine Clique $C$ eines Graphen $G = (V,E)$ heißt dabei maximal, wenn es keinen Knoten $v \in V\setminus C$ gibt, sodass $C \cup \{ v \}$ eine Clique in $G$ bildet; wenn also das Hinzufügen eines beliebigen weiteren Knotens des Graphen zu der Clique $C$ bewirkt, dass $C$ keine Clique mehr ist.
 
-Es kann gezeigt werden, dass Chordalgraphen $G_C = (V,E)$ genau diejenigen Graphen sind, bei denen sich eben diese maximalen Cliquen so in einem \emphpar{Cliquenbaum} $T$ anordnen lassen, so dass für jeden Knoten $v$ aus $V$ gilt, dass die Cliquen, in denen $v$ enthalten ist einen zusammenhängenden Teilbaum von $T$ bilden.\\
+Es kann gezeigt werden, dass Chordalgraphen $G_C = (V,E)$ genau diejenigen Graphen sind, bei denen sich eben diese maximalen Cliquen so in einem \emphpar{Cliquenbaum} $T$ anordnen lassen, so dass für jeden Knoten $vSub$ aus $V$ gilt, dass die Cliquen, in denen $v$ enthalten ist einen zusammenhängenden Teilbaum von $T$ bilden.\\
 Speziell bei Lebensgraphen vereinfacht sich dieser Baum jedoch zu einem Pfad, man kann die maximalen Cliquen also so anordnen, dass alle Cliquen, die einen Knoten $v$ enthalten in dieser Anordnung aufeinanderfolgend sind. Diese Anordnung sein im Folgenden mit \emphpar{Cliquenkette} beschrieben. Aus einer Cliquenkette lassen sich nun leicht Intervalle für Knoten ablesen, und umgekehrt, da zwei Konten nur in der selben Clique sind, wenn sie durch eine Kante verbunden sind, und ihnen so zurecht ein gemeinsamer Intervallabschnitt zugeordnet worden ist.
 
 \subsubsection{Algorithmische Erkennung von Lebensgraphen}
@@ -198,25 +198,232 @@ Sollte es sich bei $PI$ nicht um eine perfekte Eliminationsordnung, so gibt es e
 Speziell bei Fall 1 enthält dann $RN(P(v))$ jedoch mindestens einen Knoten nicht, der in $RN(v) \setminus P(v)$ enthalten ist.\\
 Somit ist obiger Algorithmus also korrekt.
 
-Ist der eingegebene Graph nun ein Chordalgraph, so wird nun der Cliquenbaum erzeugt. Dazu kann man, das schon für den vorangegangenen Algorithmus für jeden Knoten $v$ definierte, $P(v)$ nutzen. Es ist leicht zu sehen, dass dieses $P(v)$ schon einen Baum impliziert. 
+Ist der eingegebene Graph nun ein Chordalgraph, so wird nun der Cliquenbaum erzeugt. Dazu kann man, das schon für den vorangegangenen Algorithmus für jeden Knoten $v$ definierte, $P(v)$ nutzen. Es ist leicht zu sehen, dass dieses $P(v)$ schon einen Baum impliziert. Es werden nun also einfach die maximalen Cliquen ermittelt und dann entsprechend dieses Baumes geordnet:
 
-\subsection{Laufzeitanalyse}
+\begin{lstlisting}
 
+
+\end{lstlisting}
+
+Anschließend wird nun versucht, die maximalen Cliquen zu ordnen, sodass eine Cliquenkette entsteht. Dies kann mit folgendem, der Lex-BFS sehr ähnlichen, Algorithmus geschehen:
+
+\begin{lstlisting}
+
+
+\end{lstlisting}
+
+Ist diese Anordnung möglich, so handelt es sich um einen Lebensgraphen, andernfalls nicht.
+Zuallerletzt sollten nun noch die eigentlichen Intervalle für die Knoten ausgegeben werden. Dabei ist es nicht von Bedeutung, ob und wie nun Daten als Begrenzung für die Intervalle angegeben werden, oder ob einfach Zahlen ausgegeben werden. Dabei ist das eigentliche Finden der Intervalle aus einer Cliquenkette trivial realisierbar,
+ da eine Cliquenkette schon Intervalle impliziert.
+ 
+\subsubsection{Erkennung des kleinsten Teilgraphen, der kein Lebensgraph ist} 
+
+Zunächst ist es einfach zu erkennen, dass es nach obigem Algorithmus 2 verschiedene Arten von Graphen gibt, die keine Lebensgraphen sind. Es gibt diejenigen Graphen, die keine Chordalgraphen sind und diejenigen Graphen, die zwar Chordalgraphen sind, die jedoch trotzdem keine Lebensgraphen sind.
+
+Weiterhin ist es leicht zu sehen, dass jeder Graph mit 3 oder weniger Knoten ein Lebensgraph ist.
+
+Ein naheliegender Ansatz zur Findung des kleinsten Teilgraphen ist es daher alle möglichen Teilgraphen der Größe nach zu überprüfen, ob diese kein Lebensgraph sind. Dabei können schon von vorne herein gewisse Teilmengen ausgeschlossen werden. So ist es nicht sinnvoll, Cliquen zu überprüfen, auch sollte der Teilgraph zusammenhängend sein.
+
+ 
+\paragraph{Laufzeitanalyse}
+
+Bei geschickter Implementierung kann erreicht werden, dass jeder der obigen Algorithmen eine Laufzeit von $\mathcal{O}(|V| + |E|)$ besitzt. Diese Schranke erfüllt auch die geforderte Effizienz des Verfahrens.
+
+Das Ausprobieren aller Teilmengen einer Menge $V$ benötigt $\mathcal{O}(2^{|V|})$, diese Schranke ergibt sich also speziell auch für die naheliegende Variante des Findens des minimalen Teilgraphen, der kein Lebensgraph ist.
 
 \subsection{Weitere Lösungsideen}
 
-Neben der Erkennung mithilfe einer Lex-BFS sind durchaus auch andere Methoden denkbar. So kann man auch mithilfe eines PQ-Baumes diese Erkennung vornehmen\footnote{ }
+Neben der Erkennung mithilfe einer Lex-BFS sind durchaus auch andere Methoden denkbar. So kann man auch mithilfe eines PQ-Baumes diese Erkennung vornehmen\footnote{Booth, K., Lueker, S.: Testing for the Consecutive Ones Property, Interval Graphs, and Graph Planarity Using PQ-Tree Algorithms in Journal of Computer and System Sciences 13, 335--379 (1976)}. Es sind auch noch weitere Verfahren leicht im Internet auffindbar. Alle diese Verfahren eint jedoch, dass sie eine polynomielle Laufzeit für die Erkennung von Lebensgraphen besitzen, das gefundene Verfahren sollte daher auf jeden Fall auch eine solche Schranke für die Laufzeit besitzen.
+
+Für das Finden des kleinsten Teilgraphen, der kein Lebensgraph ist, wären auch Heuristiken denkbar. Auch können die speziellen Eigenschaften von Chordalgraphen und Lebensgraphen ausgenutzt werden, um eine Suche stärker zu prunen.
 
 \subsection{Erweiterungen}
+
+Diese Aufgabe scheint zunächst in sich abgeschlossen, einige kleinere  Erweiterungen sind dennoch denkbar. Zum Einen wäre es denkbar, Graphen die keine Lebensgraphen sind so zu erweitern, dass sie Lebensgraphen werden. Dabei wäre allerdings nur die minimale Erweiterung interessant, jeder Graph kann schließlich zu einem vollständigen Graphen erweitert werden.\\
+Zum Anderen können Menschen (in der Regel) nicht unbegrenzt leben. Man könnte also auch eine maximale Lebenszeit festlegen, diese Festlegung benötigt jedoch noch weitere Einschränkungen, um sinnvoll zu sein. Schließlich könnten die Grenzen aller Intervalle einfach mit einer reellen Konstanten multipliziert werden um jedwede Schranke zu unterschreiten. Daher könnte man Lebenszeiten auch nur auf ganzen Zahlen definieren um dies zu unterbinden.
+
+\subsection{Umsetzung}
+
+Zur Implementierung der Lösungsidee habe ich die Sprache \texttt{C++} gewählt.
+
+Dabei finden sich alle Methoden in der Datei \texttt{Lebenslinien.cpp}. Dabei ist der Graph global als Adjazenzmatrix \texttt{G} gespeichert.
+
+Das Lesen der Eingabe übernimmt die Methode \texttt{readInput}. Ist die Eingabe gelesen, so wird eine Ordnung der Knoten mithilfe einer Lex-BFS ermittelt, diese ist in der Methode \texttt{LexBFSOrder} implementiert. Die Überprüfung dieser Ordnung darauf, eine perfekte Eliminationsordnung zu sein geschieht in der Methode \texttt{isChordal}. Sofern die Ordnung dieser Überprüfung standhält wird ein Cliquenbaum ermittelt, implementiert in der Methode \texttt{getCliqueTree}. Abschließend wird noch überprüft, ob sich aus dem Cliquen des Cliquenbaumes auch eine Cliquenkette machen lässt. Dies ist in der Methode \texttt{isIntervalGraph} wiederzufinden. Die Ermittlung und Ausgabe der eigentlichen Intervalle übernimmt die Methode \texttt{main}.\\
+Dabei kann aufgrund von naiver Implementierung nur eine Schranke von $\mathcal{O}((|V| + |E|)²)$ eingehalten werden.
+
+Handelt es sich nicht um einen Lebensgraphen, so übernimmt die Methode \texttt{} das Finden des minimalen Teilgraphen, der kein Lebensgraph ist. Auch in diesem Fall übernimmt die \texttt{main}-Methode die Ausgabe.
+
+\subsubsection{Eingabeformat}
+
+Die Eingabe in mein Programm kann über die Standardeingabe erfolgen. Dabei wird zunächst die Anzahl $N$ an Knoten in dem Folgenden Graphen angegeben. Darauf folgen $N²$ Zahlen, entweder 0 oder 1 und durch Leerzeichen getrennt; der Graph als Adjazenzmatrix. (Dabei steht eine 1 dafür, dass eine Kante zwischen den beiden entsprechenden Knoten existiert.)
+ 
+\subsection{Beispiele}
+\subsubsection*{Beispiel 0}
+Das Beispiel aus der Aufgabenstellung.\footnote{Dieses Beispiel lässt sich auch in der Datei 0.in wiederfinden.}
+
+{\small
+\lstinputlisting{../Aufgabe_2/0.in}
+}
+
+Eine mögliche Belegung mit Intervallen\footnote{Diese Ausgabe lässt sich auch in der Datei 0.out wiederfinden.}:
+
+{\small
+\lstinputlisting{../Aufgabe_2/0.out}
+}
+
+Mein Programm benötigt für die Berechnung dieses Beispiels weniger als eine Sekunde.
+
+Eine Visualisierung:
+
+\begin{center}
+\begin{figure}[h]
+\begin{tikzpicture}[scale=0.75,transform shape]
+  \Vertex[x=10,y=5,L={1}]{A}
+  \Vertex[x=14,y=2,L={2}]{B}
+  \Vertex[x=14,y=-2,L={3}]{C}
+  \Vertex[x=10,y=-5,L={4}]{D}
+  \Vertex[x=6,y=-2,L={5}]{E}
+  \Vertex[x=6,y=2,L={0}]{F}
+  \Vertex[x=0,y=0,L={6}]{G}
+  \tikzstyle{LabelStyle}=[fill=white,sloped]
+  \Edge(A)(B)
+  \Edge(B)(C)
+  \Edge(C)(D)
+  \Edge(D)(E)
+  \Edge(E)(F)
+  \Edge(A)(F)
+  \Edge(A)(D)
+  \tikzstyle{EdgeStyle}=[bend left]
+  \Edge(B)(F)
+  \Edge(A)(E)
+  \tikzstyle{EdgeStyle}=[bend right]
+  \Edge(B)(D)
+  \Edge(A)(C)
+  \Edge(D)(F)
+\end{tikzpicture}
+\caption{Der Graph aus Beispiel 0.}
+\end{figure}
+\end{center}
+
+
+\subsubsection*{Beispiel 1}
+Ein Graph der kein Chordalgraph ist.\footnote{Dieses Beispiel lässt sich auch in der Datei 1.in wiederfinden.}
+
+{\small
+\lstinputlisting{../Aufgabe_2/1.in}
+}
+
+Die Ausgabe meines Programms\footnote{Diese Ausgabe lässt sich auch in der Datei 1.out wiederfinden.}:
+
+{\small
+\lstinputlisting{../Aufgabe_2/1.out}
+}
+
+Mein Programm benötigt für die Berechnung dieses Beispiels weniger als eine Sekunde.
+
+Eine Visualisierung:
+\begin{center}
+\begin{figure}[h]
+\begin{tikzpicture}[scale=0.75,transform shape]
+  \Vertex[x=0,y=0,L={0}]{A}
+  \Vertex[x=4,y=0,L={1}]{B}
+  \Vertex[x=4,y=4,L={2}]{C}
+  \Vertex[x=0,y=4,L={3}]{D}
+  
+  \tikzstyle{LabelStyle}=[fill=white,sloped]
+  \Edge(A)(B)
+  \Edge(B)(C)
+  \Edge(C)(D)
+  \Edge(D)(A)
+  
+\end{tikzpicture}
+\caption{Der Graph aus Beispiel 1.}
+\end{figure}
+\end{center}
+
+\subsubsection*{Beispiel 2}
+Ein weiterer Graph, der nicht chordal ist\footnote{Dieses Beispiel lässt sich auch in der Datei 2.in wiederfinden.}
+
+{\small
+\lstinputlisting{../Aufgabe_2/2.in}
+}
+
+Die Ausgabe meines Programms\footnote{Diese Ausgabe lässt sich auch in der Datei 2.out wiederfinden.}:
+
+{\small
+\lstinputlisting{../Aufgabe_2/2.out}
+}
+
+Mein Programm benötigt für die Berechnung dieses Beispiels weniger als eine Sekunde.
+
+Eine Visualisierung:
+\begin{center}
+\begin{figure}[h]
+\begin{tikzpicture}[scale=0.75,transform shape]
+  \Vertex[x=8,y=1,L={0}]{E}
+  \Vertex[x=11,y=-1,L={1}]{F}
+  \Vertex[x=14,y=1,L={2}]{G}
+  \Vertex[x=12.5,y=4,L={3}]{H}
+  \Vertex[x=9.5,y=4,L={4}]{I}
+  \Vertex[x=10.5,y=3,L={5}]{J}
+  \tikzstyle{LabelStyle}=[fill=white,sloped]
+  
+  \Edge(E)(F)
+  \Edge(F)(G)
+  \Edge(G)(H)
+  \Edge(H)(I)
+  \Edge(I)(E)
+  \Edge(I)(J)
+\end{tikzpicture}
+\caption{Der Graph aus Beispiel 2.}
+\end{figure}
+\end{center}
+
+\subsubsection*{Beispiel 3}
+Ein Dreieck, das offenkundig ein Lebensgraph ist\footnote{Dieses Beispiel lässt sich auch in der Datei a.in wiederfinden.}
+
+{\small
+\lstinputlisting{../Aufgabe_2/a.in}
+}
+
+Eine gefundene Belegung mit Intervallen\footnote{Diese Ausgabe lässt sich auch in der Datei a.out wiederfinden.}:
+
+{\small
+\lstinputlisting{../Aufgabe_2/a.out}
+}
+
+Mein Programm benötigt für die Berechnung dieses Beispiels weniger als eine Sekunde.
+
+Eine Visualisierung:
+\begin{center}
+\begin{figure}[h]
+\begin{tikzpicture}[scale=0.75,transform shape]
+  \Vertex[x=-1,y=1,L={0}]{E}
+  \Vertex[x=0,y=-1,L={1}]{F}
+  \Vertex[x=1,y=1,L={2}]{G}
+  \tikzstyle{LabelStyle}=[fill=white,sloped]
+  
+  \Edge(E)(F)
+  \Edge(F)(G)
+  \Edge(G)(E)
+\end{tikzpicture}
+\caption{Der Graph aus Beispiel 3.}
+\end{figure}
+\end{center}
+
+\subsection{Quelltext}
+
+{\small
+\lstinputlisting{../Aufgabe_2/Lebenslinien.cpp}
+}
 
 \subsection{Bewertungskriterien}
 
 \begin{itemize}
 \item Für die Erkennung von Lebensgraphen bzw. \emph{Intervallgraphen} lassen sich leicht Algorithmen im Internet finden. Das zur Erkennung dieser verwendete Verfahren sollte daher auf jeden Fall nicht wesentlich langsamer sein als solche leicht findbaren Algorithmen.
+\item Weiterhin sollte die Laufzeit angegeben und (nicht notwendigerweise formal) begründet werden. Konkrete Laufzeiten für Beispiele sollten dazu auch nicht fehlen, speziell bei Beispielen, bei denen die Eingabe kein Lebensgraph ist.
 \item Auch sollte bei der Verwendung von Werken aus dem Internet nicht auf eine angemessene Referenzierung verzichtet werden.
+\item Das beschriebene Verfahren sollte implementiert worden sein, die Funktionalität sollte anhand von aussagekräftigen Beispielen dokumentiert worden sein.
+\item Auch sollten die minimalen Teilgraphen korrekt ausgegeben werden, handelt es sich nicht um einen Lebensgraphen. Mögliche Einschränkungen in der Optimalität dieser Ausgabe sind mit einer entsprechenden Begründung durch die schlechte Laufzeit eines Brute-Force-Ansatzes ebenfalls akzeptabel.
+\item Eine grafische Ausgabe einer Zuweisung von Lebenszeiten zu Knoten bzw. der Teilgraphen ist zwar schön, aber nicht gefordert; auf jeden Fall sollte die Ausgabe leicht verständlich sein.
 \end{itemize}
-
-
- \subsection{Umsetzung}
-\subsection{Beispiele}
-\subsection{Quelltext}

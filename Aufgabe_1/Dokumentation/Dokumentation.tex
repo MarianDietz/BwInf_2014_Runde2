@@ -170,8 +170,10 @@ Es gilt also zu zeigen, dass insgesamt nicht weniger Felder abbrennen, sollte be
 
 Es lässt sich jedoch ein einfaches Beispiel konstruieren, indem eben dies der Fall ist; eine bessere Lösung also gefunden werden kann, wird nicht das nach $\mu$ optimalste Feld gelöscht:
 
+\newpage
 \begin{multicols}{2}
 Die Löschung nach dem Algorithmus:
+
 {\ttfamily \small
 \input{../Aufgabe_1/x.out.tex}
 }
@@ -218,8 +220,32 @@ Wird mein Programm über ein Terminal gestartet, so können ihm bis zu 2 Kommand
 \item[Arg. 1] Pfad zu einer Daei mit einer Eingabe
 \item[Arg. 2] Pfad zu einer Datei für eine Ausgabe; existierende Dateien werden überschrieben.\\
 Dabei gibt die Dateiendung dieser Datei das Verhalten meines Programmes an:
+\begin{itemize}
+\item \texttt{*.tex} Produziert TeX-Grafiken
+\item \texttt{*.tex2} Produziert eine TeX-Datei, jedoch ohne Grafiken, dabei werden im Terminal keine ASCII-Sequenz-Bilder angezeigt
+\item \texttt{*.raw} Spiegelt die Ausgabe im Terminal in eine Datei, dabei werden im Terminal keine ASCII-Sequenz-Bilder angezeigt
+\item \texttt{jede andere} Spiegelt die Ausgabe im Terminal in die Datei
 \end{itemize}
-\newpage
+\end{itemize}
+
+Dabei folgt eine mögliche Eingabe immer dem Folgenden Muster:
+
+\begin{verbatim}
+#Spalten #Zeilen
+#Zeilen à #Spalten Zeichen,
+ die das Feld beschreiben
+\end{verbatim}
+
+Dabei wird der Anfangszustand einer Zelle wie folgt beschrieben:
+\begin{verbatim}
+LEER		0
+BRENNBAR	1
+BRENNEND	2
+GELÖSCHT	4
+\end{verbatim}
+Dabei kann ein Feld auch mehrere Startzustände haben, dann werden einfach die betreffenden Zustände durch ein bitweises Oder verknüpft.
+Beispieleingaben finden sich auch im Abschnitt \emph{Beispiele}.
+
 \subsection{Beispiele}
 \subsubsection*{Beispiel 0}
 Die ist das Beispiel aus der Aufgabenstellung. Umgewandelt für mein Programm sieht diese Eingabe folgendermaßen aus\footnote{Diese Eingabe finden Sie auch in der Datei \texttt{0.in}}:
