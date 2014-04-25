@@ -251,7 +251,7 @@ Dabei finden sich alle Methoden in der Datei \texttt{Lebenslinien.cpp}. Dabei is
 Das Lesen der Eingabe übernimmt die Methode \texttt{readInput}. Ist die Eingabe gelesen, so wird eine Ordnung der Knoten mithilfe einer Lex-BFS ermittelt, diese ist in der Methode \texttt{LexBFSOrder} implementiert. Die Überprüfung dieser Ordnung darauf, eine perfekte Eliminationsordnung zu sein geschieht in der Methode \texttt{isChordal}. Sofern die Ordnung dieser Überprüfung standhält wird ein Cliquenbaum ermittelt, implementiert in der Methode \texttt{getCliqueTree}. Abschließend wird noch überprüft, ob sich aus dem Cliquen des Cliquenbaumes auch eine Cliquenkette machen lässt. Dies ist in der Methode \texttt{isIntervalGraph} wiederzufinden. Die Ermittlung und Ausgabe der eigentlichen Intervalle übernimmt die Methode \texttt{main}.\\
 Dabei kann aufgrund von naiver Implementierung nur eine Schranke von $\mathcal{O}((|V| + |E|)²)$ eingehalten werden.
 
-Handelt es sich nicht um einen Lebensgraphen, so übernimmt die Methode \texttt{} das Finden des minimalen Teilgraphen, der kein Lebensgraph ist. Auch in diesem Fall übernimmt die \texttt{main}-Methode die Ausgabe.
+Handelt es sich nicht um einen Lebensgraphen, so übernimmt die Methode \texttt{smallestFailingSubgraph} das Finden des minimalen Teilgraphen, der kein Lebensgraph ist. Auch in diesem Fall übernimmt die \texttt{main}-Methode die Ausgabe.
 
 \subsubsection{Eingabeformat}
 
