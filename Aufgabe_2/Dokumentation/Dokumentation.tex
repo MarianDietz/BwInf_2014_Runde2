@@ -294,17 +294,20 @@ Bei geschickter Implementierung kann erreicht werden, dass jeder der obigen Algo
 
 Das Ausprobieren aller Teilmengen einer Menge $V$ benötigt $\mathcal{O}(2^{|V|})$, diese Schranke ergibt sich also speziell auch für die naheliegende Variante des Findens des minimalen Teilgraphen, der kein Lebensgraph ist.
 
-\subsection{Weitere Lösungsideen}
-
-Neben der Erkennung mithilfe einer Lex-BFS sind durchaus auch andere Methoden denkbar. So kann man auch mithilfe eines PQ-Baumes diese Erkennung vornehmen\footnote{Booth, K., Lueker, S.: Testing for the Consecutive Ones Property, Interval Graphs, and Graph Planarity Using PQ-Tree Algorithms in Journal of Computer and System Sciences 13, 335--379 (1976)}. Es sind auch noch weitere Verfahren leicht im Internet auffindbar. Alle diese Verfahren eint jedoch, dass sie eine polynomielle Laufzeit für die Erkennung von Lebensgraphen besitzen, das gefundene Verfahren sollte daher auf jeden Fall auch eine solche Schranke für die Laufzeit besitzen.
-
-Für das Finden des kleinsten Teilgraphen, der kein Lebensgraph ist, wären auch Heuristiken denkbar. Auch können die speziellen Eigenschaften von Chordalgraphen und Lebensgraphen ausgenutzt werden, um eine Suche stärker zu prunen.
-
-\subsection{Erweiterungen}
-
-Diese Aufgabe scheint zunächst in sich abgeschlossen, einige kleinere  Erweiterungen sind dennoch denkbar. Zum Einen wäre es denkbar, Graphen die keine Lebensgraphen sind so zu erweitern, dass sie Lebensgraphen werden. Dabei wäre allerdings nur die minimale Erweiterung interessant, jeder Graph kann schließlich zu einem vollständigen Graphen erweitert werden.\\
-Zum Anderen können Menschen (in der Regel) nicht unbegrenzt leben. Man könnte also auch eine maximale Lebenszeit festlegen, diese Festlegung benötigt jedoch noch weitere Einschränkungen, um sinnvoll zu sein. Schließlich könnten die Grenzen aller Intervalle einfach mit einer reellen Konstanten multipliziert werden um jedwede Schranke zu unterschreiten. Daher könnte man Lebenszeiten auch nur auf ganzen Zahlen definieren um dies zu unterbinden.
-
+%\begin{Musterloesung}
+%\subsection{Weitere Lösungsideen}
+%
+%Neben der Erkennung mithilfe einer Lex-BFS sind durchaus auch andere Methoden denkbar. So kann man auch mithilfe eines PQ-Baumes diese Erkennung vornehmen\footnote{Booth, K., Lueker, S.: Testing for the Consecutive Ones Property, Interval Graphs, and Graph Planarity Using PQ-Tree Algorithms in Journal of Computer and System Sciences 13, 335--379 (1976)}. Es sind auch noch weitere Verfahren leicht im Internet auffindbar. Alle diese Verfahren eint jedoch, dass sie eine polynomielle Laufzeit für die Erkennung von Lebensgraphen besitzen, das gefundene Verfahren sollte daher auf jeden Fall auch eine solche Schranke für die Laufzeit besitzen.
+%
+%Für das Finden des kleinsten Teilgraphen, der kein Lebensgraph ist, wären auch Heuristiken denkbar. Auch können die speziellen Eigenschaften von Chordalgraphen und Lebensgraphen ausgenutzt werden, um eine Suche stärker zu prunen.
+%
+%\subsection{Erweiterungen}
+%
+%Diese Aufgabe scheint zunächst in sich abgeschlossen, einige kleinere  Erweiterungen sind dennoch denkbar. Zum Einen wäre es denkbar, Graphen die keine Lebensgraphen sind so zu erweitern, dass sie Lebensgraphen werden. Dabei wäre allerdings nur die minimale Erweiterung interessant, jeder Graph kann schließlich zu einem vollständigen Graphen erweitert werden.\\
+%Zum Anderen können Menschen (in der Regel) nicht unbegrenzt leben. Man könnte also auch eine maximale Lebenszeit festlegen, diese Festlegung benötigt jedoch noch weitere Einschränkungen, um sinnvoll zu sein. Schließlich könnten die Grenzen aller Intervalle einfach mit einer reellen Konstanten multipliziert werden um jedwede Schranke zu unterschreiten. Daher könnte man Lebenszeiten auch nur auf ganzen Zahlen definieren um dies zu unterbinden.
+%
+%\end{Musterloesung}
+%\begin{Wettbewerb}
 \subsection{Umsetzung}
 
 Zur Implementierung der Lösungsidee habe ich die Sprache \texttt{C++} gewählt.
@@ -319,6 +322,8 @@ Handelt es sich nicht um einen Lebensgraphen, so übernimmt die Methode \texttt{
 \subsubsection{Eingabeformat}
 
 Die Eingabe in mein Programm kann über die Standardeingabe erfolgen. Dabei wird zunächst die Anzahl $N$ an Knoten in dem Folgenden Graphen angegeben. Darauf folgen $N²$ Zahlen, entweder 0 oder 1 und durch Leerzeichen getrennt; der Graph als Adjazenzmatrix. (Dabei steht eine 1 dafür, dass eine Kante zwischen den beiden entsprechenden Knoten existiert.)
+
+%\end{Wettbewerb} 
  
 \subsection{Beispiele}
 \subsubsection*{Beispiel 0}
@@ -519,20 +524,23 @@ Die gefundene Belegung mit den Intervallen\footnote{Diese Ausgabe lässt sich au
 
 Mein Programm benötigt für die Berechnung dieses Beispiels weniger als eine Sekunde.
 
-
+%\begin{Wettbewerb}
 \subsection{Quelltext}
 
 {\small
 \lstinputlisting{../Aufgabe_2/Lebenslinien.cpp}
 }
 
-\subsection{Bewertungskriterien}
-
-\begin{itemize}
-\item Für die Erkennung von Lebensgraphen bzw. \emph{Intervallgraphen} lassen sich leicht Algorithmen im Internet finden. Das zur Erkennung dieser verwendete Verfahren sollte daher auf jeden Fall nicht wesentlich langsamer sein als solche leicht findbaren Algorithmen.
-\item Weiterhin sollte die Laufzeit angegeben und (nicht notwendigerweise formal) begründet werden. Konkrete Laufzeiten für Beispiele sollten dazu auch nicht fehlen, speziell bei Beispielen, bei denen die Eingabe kein Lebensgraph ist.
-\item Auch sollte bei der Verwendung von Werken aus dem Internet nicht auf eine angemessene Referenzierung verzichtet werden.
-\item Das beschriebene Verfahren sollte implementiert worden sein, die Funktionalität sollte anhand von aussagekräftigen Beispielen dokumentiert worden sein.
-\item Auch sollten die minimalen Teilgraphen korrekt ausgegeben werden, handelt es sich nicht um einen Lebensgraphen. Mögliche Einschränkungen in der Optimalität dieser Ausgabe sind mit einer entsprechenden Begründung durch die schlechte Laufzeit eines Brute-Force-Ansatzes ebenfalls akzeptabel.
-\item Eine grafische Ausgabe einer Zuweisung von Lebenszeiten zu Knoten bzw. der Teilgraphen ist zwar schön, aber nicht gefordert; auf jeden Fall sollte die Ausgabe leicht verständlich sein.
-\end{itemize}
+%\end{Wettbewerb}
+%\begin{Musterloesung}
+%\subsection{Bewertungskriterien}
+%
+%\begin{itemize}
+%\item Für die Erkennung von Lebensgraphen bzw. \emph{Intervallgraphen} lassen sich leicht Algorithmen im Internet finden. Das zur Erkennung dieser verwendete Verfahren sollte daher auf jeden Fall nicht wesentlich langsamer sein als solche leicht findbaren Algorithmen.
+%\item Weiterhin sollte die Laufzeit angegeben und (nicht notwendigerweise formal) begründet werden. Konkrete Laufzeiten für Beispiele sollten dazu auch nicht fehlen, speziell bei Beispielen, bei denen die Eingabe kein Lebensgraph ist.
+%\item Auch sollte bei der Verwendung von Werken aus dem Internet nicht auf eine angemessene Referenzierung verzichtet werden.
+%\item Das beschriebene Verfahren sollte implementiert worden sein, die Funktionalität sollte anhand von aussagekräftigen Beispielen dokumentiert worden sein.
+%\item Auch sollten die minimalen Teilgraphen korrekt ausgegeben werden, handelt es sich nicht um einen Lebensgraphen. Mögliche Einschränkungen in der Optimalität dieser Ausgabe sind mit einer entsprechenden Begründung durch die schlechte Laufzeit eines Brute-Force-Ansatzes ebenfalls akzeptabel.
+%\item Eine grafische Ausgabe einer Zuweisung von Lebenszeiten zu Knoten bzw. der Teilgraphen ist zwar schön, aber nicht gefordert; auf jeden Fall sollte die Ausgabe leicht verständlich sein.
+%\end{itemize}
+%\end{Musterloesung}
