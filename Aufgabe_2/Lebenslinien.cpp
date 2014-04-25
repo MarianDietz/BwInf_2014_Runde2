@@ -184,13 +184,19 @@ std::deque<std::vector<int>> L; //clique chain
 bool isIntervalGraph(std::vector<int> ordering, bool printOut = true){
   auto T = getCliqueTree(ordering, printOut);
   
-  std::list<std::vector<int> > l;
-  for(size_t o = 0; o < T.size(); ++o)
-    l.push_back(T[o].first);
-  
-  std::list<std::list< std::vector<int> > > classes;
+  std::list<std::pair<std::vector<int>,int> > l;
+  std::list<std::pair<int,int> > treeEdges;
+  for(size_t o = 0; o < T.size(); ++o){
+    auto i = T[o];
+    l.push_back(std::pair<std::vector<int>,int>(i.first,o));
+    if(i.second >= 0)
+      treeEdges.push_back(std::pair<int,int>(o,i.second));
+  }
+  std::list<std::list<std::pair<std::vector<int>, int> > > classes;
   classes.push_back(l);
     
+  std::vector<int> pivots;
+  
   std::vector<bool> used(N, false);
   
   L.clear();
@@ -201,46 +207,110 @@ bool isIntervalGraph(std::vector<int> ordering, bool printOut = true){
       for(auto i = classes.begin(); i != classes.end(); ++i){
 	if(i != classes.begin())
 	  printf(" |");
+	else
+	  printf("(");
 	for(auto j = i->begin(); j != i->end(); ++j){
 	  if(j != i->begin())
-	    printf(",");
-	  for(auto k : *j)
+	    printf(", (");
+	  for(auto k : j->first)
 	    printf(" %d",k);
+	  printf("; %d)",j->second);
 	}
       }
       printf("\n");
     }
     
+    std::set<int> C;
+    while(!pivots.empty() && used[pivots.back()])
+      pivots.pop_back();
     
-    auto LST = *(classes.rbegin()->rbegin());
-    L.push_front(LST);
-    classes.rbegin()->pop_back();
-    
-    
-    std::sort(LST.begin(),LST.end());
-    
-    std::list< std::vector<int> > tmp_in, tmp_out;
-    std::vector< int >tmp;
-    for(auto I = classes.rbegin()->begin(); I != classes.rbegin()->end(); ++I){
-      tmp.clear();
+    if(pivots.empty()){     
       
-      std::sort(I->begin(),I->end());
-      std::set_intersection(LST.begin(), LST.end(),
-			I->begin(), I->end(),
-			std::back_inserter(tmp));
-            
-      if(tmp.empty())
-	tmp_out.push_back(*I);
-      else
-	tmp_in.push_back(*I);
+      std::list<std::pair<std::vector<int>, int> >::iterator Xc = classes.rbegin()->begin();
       
+      for(auto I = classes.rbegin()->begin(); I != classes.rbegin()->end(); ++I)
+	if(I->second > Xc->second)
+	  (Xc) = (I);
+      
+      C.insert(Xc->second);  
+      L.push_front(Xc->first);
+      
+      classes.rbegin()->erase(Xc);
+      
+      if(classes.rbegin()->empty())
+	classes.pop_back();
+    } 
+    else {      
+      int x = pivots.back(); pivots.pop_back();
+      used[x] = true;
+      
+      auto Xa = classes.begin(), Xb = classes.begin();
+      bool Xaset = false;
+      
+      for(auto i = classes.begin(); i != classes.end(); ++i)
+	for(auto j : *i) {
+	  bool contains = false;
+	  for(auto k: j.first)
+	    if(k == x){
+	      contains = true;
+	      break;
+	    }
+	  if(contains) {
+	    C.insert(j.second);
+	  
+	    Xb = i;
+	    if(!Xaset){
+	      Xa = i;
+	      Xaset = true;
+	    }
+	  }
+	}
+	
+      //Partion Xa und Xb
+      std::list<std::pair<std::vector<int>, int>> tmp_inA, tmp_outA, tmp_inB, tmp_outB;
+      
+      for(auto i : (*Xa))
+	if(C.count(i.second))
+	  tmp_inA.push_back(i);
+	else
+	  tmp_outA.push_back(i);
+      for(auto i : (*Xb))
+	if(C.count(i.second))
+	  tmp_inB.push_back(i);
+	else
+	  tmp_outB.push_back(i);
+      	
+      if(tmp_outA.empty())
+	std::swap(tmp_inA,tmp_outA);
+      
+      (*Xa) = tmp_outA;
+      if(!tmp_inA.empty())
+	classes.insert(++Xa, tmp_inA);  
+      
+      if(Xa != ++Xb) {
+	if(tmp_inB.empty())	
+	  std::swap(tmp_inB,tmp_outB);
+	(*Xb) = tmp_inB;
+	if(!tmp_outB.empty())
+	  classes.insert(Xb, tmp_outB);  
+      }
     }
-    classes.pop_back();
-    if(!tmp_out.empty())
-      classes.push_back(tmp_out);
-    if(!tmp_in.empty())
-      classes.push_back(tmp_in);
-  } 
+     
+    //Update Pivots
+    for(auto i = treeEdges.begin(); i != treeEdges.end(); ++i){
+      if(C.count(i->first) != C.count(i->second)){
+	std::set<int> Ci;
+	for(auto j : T[i->first].first)
+	  Ci.insert(j);
+	for(auto j : T[i->second].first)
+	  if(Ci.count(j))
+	    pivots.push_back(j);
+	  
+	treeEdges.erase(i);	
+	--i;
+      }
+    }
+  }
   
   std::vector<bool> alive(N,false), ended (N,false);
   
@@ -274,7 +344,7 @@ bool isIntervalGraph(std::vector<int> ordering, bool printOut = true){
 //END
 
 //determines smallest subgraph that is not an interval graph
-std::vector<int> smallestFailingSubgraph(){
+std::vector<int> smallestFailingSubgraph(bool chordal){
   auto G2 = G;
   int N2 = N;
   for(N = 4; N <= N2; ++N){ //try all size i subsets of the nodes
@@ -294,7 +364,7 @@ std::vector<int> smallestFailingSubgraph(){
 	  ++i;
 	}
       auto LO = LexBFSOrder();
-      if(!isChordal(LO) || !isIntervalGraph(LO, false)) { //Found smallest subgraph, that is not chordal
+      if(!isChordal(LO) || (!chordal && !isIntervalGraph(LO, false))) { //Found smallest subgraph, that is not chordal
 	
 	std::vector<int> ret;
 	
@@ -319,7 +389,7 @@ int main(){
     std::printf("The graph is not chordal.\n"); //Calculation stops here
    
     std::printf("Smallest subgraph that is not chordal:\n");
-    for(auto i : smallestFailingSubgraph())
+    for(auto i : smallestFailingSubgraph(true))
       std::printf("Node %d\n",i);
     
     return 0;
@@ -345,7 +415,7 @@ int main(){
     std::printf("The graph is not an interval graph.\n");
     
     std::printf("Smallest subgraph that is not an interval graph:\n");
-    for(auto i : smallestFailingSubgraph())
+    for(auto i : smallestFailingSubgraph(false))
       std::printf("Node %d\n",i);
     
     return 0;

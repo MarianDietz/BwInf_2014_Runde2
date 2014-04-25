@@ -1,167 +1,367 @@
 #include <cstdio>
 #include <vector>
-#include <map>
+#include <list>
+#include <stack>
+#include <deque>
 #include <algorithm>
-#include <queue>
 #include <set>
+#include <queue>
 
-using namespace std;
-
-vector<vector<int> > ImpG;
-
+std::vector<std::vector<int> > G; //The Graph
 int N; //Graphsize
 
-bool FoundContradiction = false;
-void printContradiction(vector<int>& Contradiction){
-  FoundContradiction = true;
-  printf("Found a Contradiction containing the nodes:\n");
-  for(auto i : Contradiction)
-    if(i %2 == 0)
-      printf("%d\n",(i/2) + 1);
-    else
-      printf("¬%d\n",(i/2) + 1);
-  printf("\n");
+void readInput(){
+  std::printf("The graphsuze.\n");
+  scanf("%i",&N);
+  G.assign(N,std::vector<int>(N,0));
+  
+  std::printf("%d lines à %d space seperated integers;\nthe graph as adjancy matrix.\n",N,N);
+  //Read Graph stored in an Adjancy Matrix
+  for(int i = 0; i < N; ++i)
+    for(int j= 0; j < N; ++j)
+      scanf("%i",&G[i][j]); 
 }
 
-///SCC - Code
-vector<int> dfs_num,dfs_low, S;
-vector<bool> visited;
-vector<int> inScc;
-vector<vector<int> > inSCCrev;
-int dfsNumCounter = 0,SccCounter = 0;
 
-#define UNVISITED -1
+//BEGIN lexicographic BFS
 
-bool check(vector<int>& SCC){
-  sort(SCC.begin(), SCC.end());
-  for(size_t i = 1; i < SCC.size(); ++i)
-    if(SCC[i]/2 == SCC[i-1]/2)
-      return false;
+std::vector<int> LexBFSOrder(){
+  std::list<int> L;
+  for(int i = 0; i < (int)G.size(); ++i)
+    L.push_back(i);
+  std::deque<std::list<int>> classes;
+  classes.push_back(L);
+  std::deque<int> ret;
+  
+  while(!classes.empty()){
+    int ac = *(classes.begin()->begin());
+    classes.begin()->pop_front();
+    if(classes.begin()->empty())
+      classes.pop_front();
+    
+    ret.push_front(ac);
+    
+    std::deque<std::list<int>> new_classes;
+    for(auto i : classes){
+      std::list<int> tmp_in, tmp_out;
+      
+      for(auto j : i)
+	if(G[j][ac]) //partion depending on whether neighbor of ac or not
+	  tmp_in.push_back(j);
+	else
+	  tmp_out.push_back(j);
+	
+      if(!tmp_in.empty())
+	new_classes.push_back(tmp_in);
+      if(!tmp_out.empty())
+	new_classes.push_back(tmp_out);
+    }
+    classes = new_classes;
+  }
+  return {ret.begin(), ret.end()};
+}
+
+//END
+
+//BEGIN Chordality test
+
+
+
+ //checks if ordering is a perfect elimination ordering
+bool isChordal(std::vector<int> ordering){
+  
+  std::vector<std::vector<int> > rightNeighs(N, std::vector<int> ()); //Neghbours to the right
+  
+  std::vector<bool> used(N, false);
+  for(int x = 0; x < N; ++x){
+    int acnode = ordering[x];
+    
+    used[acnode] = true;
+    
+    for(int i = 0; i < N; ++i)
+      if(G[i][acnode] && used[i])
+	rightNeighs[i].push_back(acnode);
+  }
+  
+//   printf("RN | RN(par)\n");
+//   
+//   for(int i = 0; i < N; ++i){
+//     printf("%d:",i);
+//     
+//     for(auto j: rightNeighs[i])
+//       printf(" %d",j);
+//     printf(" |");
+//     
+//     if(rightNeighs[i].size() > 1)
+//       for(auto j: rightNeighs[rightNeighs[i][0]])
+// 	printf(" %d",j);
+//     
+//     printf("\n");
+//   }
+  
+  for(int x = 0; x < N; ++x){
+    if(rightNeighs[x].size() <= 1)
+      continue;
+    
+   // naive implementation
+    for(int i = 1; i < rightNeighs[x].size(); ++i){
+      bool existant = false;
+      for(auto j : rightNeighs[rightNeighs[x][0]])
+	if(j == rightNeighs[x][i]){
+	  existant = true;
+	  break;
+	}
+      if(!existant)
+	return false;
+    }
+  }
+  
   return true;
 }
 
-void tarjanSCC(int u){
-  dfs_low[u] = dfs_num[u] = dfsNumCounter++;
-  S.push_back(u);
-  visited[u] = true;
-  for(auto J = ImpG[u].begin(); J != ImpG[u].end(); ++J){
-    if(dfs_num[*J] == UNVISITED)
-      tarjanSCC(*J);
-    if(visited[*J])
-      dfs_low[u] = min(dfs_low[u], dfs_low[*J]);
-  }
+std::vector<std::pair<std::vector<int>, int > > 
+getCliqueTree(std::vector<int> ordering) {
+  std::vector<std::vector<int> > rightNeighs(N, std::vector<int> ()); //Neghbours to the right
+  std::vector<std::vector<int> > T(N,std::vector<int>());
   
-  if(dfs_low[u] == dfs_num[u]){ //Found a SCC
-    vector<int> SCC;
-    SCC.clear();
-    while(42){
-      int v = S.back(); S.pop_back(); visited[v] = false;
-      SCC.push_back(v);
-      inScc[v] = SccCounter;
-      
-//       if(v%2)
-// 	printf("¬");
-//       printf("%d ",v/2 + 1);
-      if(u == v)
-	break;
-    }
-//     printf("\n\n");
+  std::vector<bool> used(N, false);
+  for(int x = 0; x < N; ++x){
+    int acnode = ordering[x];
     
-    inSCCrev.push_back(SCC);
-    if(!check(SCC))
-      printContradiction(SCC);
-    
-    ++SccCounter;
-  }
-}
-
-///End SCC - Code
-
-int main(){
-  scanf("%i",&N);
-  auto g = vector<vector<int> >(N,vector<int>(N,0));
-  ImpG.assign(2*N,vector<int>());
-  //Read Graph stored in an Adjancy Matrix
-  for(int i = 0; i < N; ++i)
-    for(int j= 0; j < N; ++j){
-      scanf("%i",&g[i][j]); 
-      if(i != j){
-	if(g[i][j])
-	  ImpG[2*i + 1].push_back(2*j);
-	else
-	  ImpG[2*i].push_back(2*j+1);
+    used[acnode] = true;
+    for(int i = 0; i < N; ++i)
+      if(G[i][acnode] && used[i]){
+	if(rightNeighs[i].empty())
+	  T[acnode].push_back(i);
+	rightNeighs[i].push_back(acnode);
+      }
+  }  
+  
+  std::stack<int> s;
+  std::vector<std::set<int> > clique(N,std::set<int>());
+  std::set<int> cliques;
+  
+  for(int i = 0; i< N; ++i)
+    if(rightNeighs[i].empty()){
+      s.push(i); //push the tree roots
+      if(T[i].empty()) { //Is simple node
+	clique[i].insert(i);
+	cliques.insert(i);
       }
     }
+  while(!s.empty()){
+    auto ac = s.top(); s.pop();
+    
+    for(auto child : T[ac]) {
+      for(auto i : rightNeighs[child])
+	clique[child].insert(i);
+      clique[child].insert(child);
+      
+      auto acParent = rightNeighs[child][0];
+      
+      if(std::includes(clique[child].begin(),clique[child].end(),
+	 clique[acParent].begin(), clique[acParent].end()))
+	if(cliques.count(acParent))
+	  clique[acParent].erase(clique[acParent].find(acParent));
+      
+      cliques.insert(child);
+      
+      if(!T[child].empty())
+	s.push(child);
+    }
+  }
+    
+  std::vector<std::pair<std::vector<int>, int > > t;
+  std::vector<int> num(N, -1);
+  int cnt = 0;
+  for(int i = 0; i < N; ++i)
+    if(cliques.count(i) && clique[i].count(i))
+      num[i] = cnt++;
+  for(int i = 0; i < N; ++i)
+    if(cliques.count(i) && clique[i].count(i)){
+      printf("In clique %d:", i);
+      for(auto k : clique[i])
+	printf(" %d", k);
+      printf("\n");
+      
+      int par = (rightNeighs[i].empty() ? -1 : num[rightNeighs[i][0]]);
+      t.push_back(std::pair<std::vector<int>, int >({clique[i].begin(),clique[i].end()}, par));
+    }
+  return t;
+}
 
+//END
+
+//BEGIN Interval Graph Reckon'ing
+
+std::deque<std::vector<int>> L; //clique chain
+
+bool isIntervalGraph(std::vector<int> ordering){
+  auto T = getCliqueTree(ordering);
+  
+  fflush(stdout);
+  
+  std::list<std::pair<std::vector<int>,int> > l;
+  std::list<std::pair<int,int> > treeEdges;
+  for(size_t o = 0; o < T.size(); ++o){
+    auto i = T[o];
+    l.push_back(std::pair<std::vector<int>,int>(i.first,o));
+    if(i.second >= 0)
+      treeEdges.push_back(std::pair<int,int>(o,i.second));
+  }
+  std::list<std::list<std::pair<std::vector<int>, int> > > classes;
+  classes.push_back(l);
     
-  dfs_num.assign(2*N,UNVISITED);
-  dfs_low.assign(2*N,0);
-  visited.assign(2*N,false);
-  inScc.assign(2*N,0);
-  dfsNumCounter = SccCounter = 0;
-  for(int i= 0; i < 2*N; ++i)
-    if(dfs_num[i] == UNVISITED)
-      tarjanSCC(i);
+  std::stack<int> pivots;
+  
+  std::vector<bool> used(N, false);
+  
+  while(!classes.empty()){
+    if(classes.rbegin()->size() == 1) {  //Skip classes containing only 1 element
+      L.push_front(classes.rbegin()->rbegin()->first);
+      classes.pop_back();
+      continue;
+    }
     
-//   printf("IMP-GRAPH\n");d
-//   for(int i= 0; i < 2*N; ++i){
-//     if(i %2 == 1)
-//       printf("¬");
-//     printf("%d:",(i/2) + 1);
-//     for(auto j : ImpG[i])
-//       if(j %2 == 0)
-// 	printf(" %d",(j/2) + 1);
-//       else
-// 	printf(" ¬%d",(j/2) + 1);
-//     printf("\n");
-//   }   
-  if(!FoundContradiction){ //CalculateSolution
-    printf("Found no contradiction!\n");
-//     for(int i= 0; i < 2*N; ++i)
-//       printf("%d %d\n",i,inScc[i]);
+    std::set<int> C;
+    while(!pivots.empty() && used[pivots.top()])
+      pivots.pop();
     
-    vector<set<int>> SCCGraph(SccCounter,set<int>());
-    
-    printf("%d\n",SccCounter);
-    for(int i = 0; i< 2*N; ++i)
-      for(auto j : ImpG[i])
-	if(inScc[i] != inScc[j]){
-// 	  SCCGraph[inScc[i]].insert(inScc[j]);
-	  SCCGraph[inScc[j]].insert(inScc[i]);
+    if(pivots.empty()){
+      while(classes.rbegin()->empty())
+	classes.pop_back();
+      auto Xc = *(classes.rbegin()->rbegin());
+      C.insert(Xc.second);
+      
+      
+      L.push_front(Xc.first);
+      classes.rbegin()->pop_back();
+      if(classes.rbegin()->empty())
+	classes.pop_back();
+      
+    } else {      
+      int x = pivots.top(); pivots.pop();
+      used[x] = true;
+      
+      auto Xa = classes.begin(), Xb = classes.begin();
+      bool Xaset = false;
+      
+      for(auto i = classes.begin(); i != classes.end(); ++i)
+	for(auto j : *i) {
+	  bool contains = false;
+	  for(auto k: j.first)
+	    if(k == x){
+	      contains = true;
+	      break;
+	    }
+	  if(contains)
+	    C.insert(j.second);
+	  
+	  Xb = i;
+	  if(!Xaset){
+	    Xa = i;
+	    Xaset = true;
+	  }
 	}
 	
-    //toposort the obtained Graph
-    vector<bool> truthval(N,false),valset(N,false);
-    
-    queue<int> q;
-    for(int i = 0; i< SccCounter; ++i)
-      if(SCCGraph[i].empty())
-	q.push(i);
+      //Partion Xa und Xb
+      std::list<std::pair<std::vector<int>, int>> tmp_inA, tmp_outA, tmp_inB, tmp_outB;
       
-    while(!q.empty()){
-      int ac = q.front(); q.pop();
-      printf("%d\n",ac);
+      for(auto i : (*Xa))
+	if(C.count(i.second))
+	  tmp_inA.push_back(i);
+	else
+	  tmp_outA.push_back(i);
+      for(auto i : (*Xb))
+	if(C.count(i.second))
+	  tmp_inB.push_back(i);
+	else
+	  tmp_outB.push_back(i);
       
-      bool acval = false;
-      for(auto a : inSCCrev[ac])
-	if(valset[a/2]){
-	  acval = truthval[a/2] ^ (a % 2);
-	  break;
-	}
-      for(auto a : inSCCrev[ac])
-	if(!valset[a/2]){
-	  valset[a/2] = true;
-	  truthval[a/2] = acval ^ (a % 2);
-	}
-      for(int i = 0; i < SccCounter; ++i)
-	if(SCCGraph[i].count(ac)){
-	  printf("Remove %d from %d\n",i,ac);
-	  SCCGraph[i].erase(SCCGraph[i].find(ac));
-	  if(SCCGraph[i].empty())
-	    q.push(i);
-	}
+      (*Xa) = tmp_outA;
+      classes.insert(Xa, tmp_inA);
+      
+      (*Xb) = tmp_inB;
+      classes.insert(Xb, tmp_outB);
+      
     }
-    for(int i = 0; i< N; ++i)
-      printf("Set %d to %s\n",i,truthval[i]?"true":"false");
+     
+    //Update Pivots
+    for(auto i = treeEdges.begin(); i != treeEdges.end(); ++i){
+      if(C.count(i->first) != C.count(i->second)){
+	std::set<int> Ci;
+	for(auto j : T[i->first].first)
+	  Ci.insert(j);
+	for(auto j : T[i->second].first)
+	  if(Ci.count(j))
+	    pivots.push(j);
+	  
+	treeEdges.erase(i);	
+	--i;
+      }
+    }
+  }
+    
+  std::vector<bool> alive(N,false), ended (N,false);
+  
+  for(auto i : L){
+    std::vector<bool> seen (N, false);
+    for(auto j : i)
+      seen[j] = true;
+    
+    for(int j = 0; j < N; ++j)
+      if(ended[j] && seen[j])
+	return false;
+      else if(seen[j])
+	alive[j] = true;
+      else if(!seen[j] && alive[j]){
+	ended[j] = true;
+	alive[j] = false;
+      }
+  }
+  return true;
+}
+
+//END
+
+int main(){
+  readInput();
+  auto LO = LexBFSOrder(); 
+  if(isChordal(LO))
+    printf("The graph is chordal!\n");
+  else{
+    printf("The graph is not chordal.\n"); //Calculation stops here
+    
+    auto G2 = G;
+    int N2 = N;
+    for(N = 4; N <= N2; ++N){ //try all size i subsets of the nodes
+      vector<bool> ac;
+      
+    }
+    
+    return 0;
+  }
+  
+  if(isIntervalGraph(LO)){
+    
+    std::vector<int> start(N, -1), end(N, -1);
+    for(int i = 0; i < L.size(); ++i){
+      auto ac = L[i];
+      for(auto j : ac){
+	end[j] = i;
+	if(start[j] == -1)
+	  start[j] = i;
+      }
+    }
+    
+    printf("The graph is an interval graph:\n");
+    for(int i = 0; i < N; ++i)
+      printf("Node %d: 01.01.%4d - 01.01.%4d\n", i, 1900 + 2 * start[i], 1901 + 2 * start[i]);
+  }
+  else {
+    printf("The graph is not an interval graph.\n");
+    
+    
+    return 0;
   }
 }
