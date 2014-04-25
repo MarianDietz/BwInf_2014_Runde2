@@ -12,11 +12,11 @@ std::vector<std::vector<int> > G; //The Graph
 int N; //Graphsize
 
 void readInput(){
-  std::printf("The graphsize.\n");
+  std::printf("The graphsize.");
   scanf("%i",&N);
   G.assign(N,std::vector<int>(N,0));
   
-  std::printf("%d lines à %d space seperated integers;\nthe graph as adjancy matrix.\n",N,N);
+  std::printf("%d lines with %d space seperated integers;\nthe graph as adjancy matrix.\n",N,N);
   //Read Graph stored in an Adjancy Matrix
   for(int i = 0; i < N; ++i)
     for(int j= 0; j < N; ++j)
@@ -202,24 +202,6 @@ bool isIntervalGraph(std::vector<int> ordering, bool printOut = true){
   L.clear();
   
   while(!classes.empty()){
-  
-    if(printOut){
-      for(auto i = classes.begin(); i != classes.end(); ++i){
-	if(i != classes.begin())
-	  printf(" |");
-	else
-	  printf("(");
-	for(auto j = i->begin(); j != i->end(); ++j){
-	  if(j != i->begin())
-	    printf(", (");
-	  for(auto k : j->first)
-	    printf(" %d",k);
-	  printf("; %d)",j->second);
-	}
-      }
-      printf("\n");
-    }
-    
     std::set<int> C;
     while(!pivots.empty() && used[pivots.back()])
       pivots.pop_back();
@@ -314,16 +296,7 @@ bool isIntervalGraph(std::vector<int> ordering, bool printOut = true){
   
   std::vector<bool> alive(N,false), ended (N,false);
   
-  if(printOut)
-    printf("END\n");
   for(auto i : L){
-
-    if(printOut) {
-      for(auto j : i)
-	printf(" %d",j);
-      printf("\n");
-    }
-    
     std::vector<bool> seen (N, false);
     for(auto j : i)
       seen[j] = true;
@@ -342,6 +315,15 @@ bool isIntervalGraph(std::vector<int> ordering, bool printOut = true){
 }
 
 //END
+
+//determines the number of connected components
+std::vector<bool> visited;
+void dfs(int u){
+  visited[u] = true;
+  for(int i = 0; i < N; ++i)
+    if(G[i][u] && !visited[i])
+      dfs(i);
+}
 
 //determines smallest subgraph that is not an interval graph
 std::vector<int> smallestFailingSubgraph(bool chordal){
@@ -363,6 +345,17 @@ std::vector<int> smallestFailingSubgraph(bool chordal){
 	      G[i][j++] = G2[k][l];
 	  ++i;
 	}
+
+      visited.assign(N, false);
+      dfs(0); 
+      bool fail = false;
+      for(int p = 0; p< N; ++p)
+	if(!visited[p]) {
+	  fail = true;
+	  break;
+	}
+      if(fail)
+	continue;
       auto LO = LexBFSOrder();
       if(!isChordal(LO) || (!chordal && !isIntervalGraph(LO, false))) { //Found smallest subgraph, that is not chordal
 	
@@ -373,7 +366,6 @@ std::vector<int> smallestFailingSubgraph(bool chordal){
 	    ret.push_back(k);
 	return ret;
       }
-      
     }while(std::next_permutation(btm.begin(),btm.end()));
   }
   

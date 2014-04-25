@@ -201,15 +201,78 @@ Somit ist obiger Algorithmus also korrekt.
 Ist der eingegebene Graph nun ein Chordalgraph, so wird nun der Cliquenbaum erzeugt. Dazu kann man, das schon für den vorangegangenen Algorithmus für jeden Knoten $v$ definierte, $P(v)$ nutzen. Es ist leicht zu sehen, dass dieses $P(v)$ schon einen Baum impliziert. Es werden nun also einfach die maximalen Cliquen ermittelt und dann entsprechend dieses Baumes geordnet:
 
 \begin{lstlisting}
-
-
+//Ermittlung des Cliquenbaumes
+//Eingabe: Graph G = (V,E), Reihenfolge PI der Knoten V
+//Ausgabe: Ein Cliquenbaum B
+begin
+  Ermittle RN(v) und P(v) für jeden Knoten v;
+ 
+  Sei T der durch P(v) implizierte Baum;
+  Sei r die Wurzel von T;
+  
+  Sei Clique ein Array, das Knoten eine Clique zuordnet;
+  
+  foreach v in T, v != r in preorder do begin
+    if( RN(v) \ {P(v)} != RN(P(v)) ) then begin
+      Sei c := {v} eine neue Clique;
+      Clique[v] := c;
+      PAR(c) := Clique[P(v)];
+    end else begin
+      Clique[P(v)] += { v };
+      Clique[v] := Clique[P(v)];
+    end;    
+  end;
+  Sei B der durch PAR(C) implizierte Baum;
+  return B;   
+end.
 \end{lstlisting}
 
-Anschließend wird nun versucht, die maximalen Cliquen zu ordnen, sodass eine Cliquenkette entsteht. Dies kann mit folgendem, der Lex-BFS sehr ähnlichen, Algorithmus geschehen:
+Anschließend wird nun versucht, die maximalen Cliquen zu ordnen, sodass eine Cliquenkette entsteht. Der naive Ansatz, alle möglichen Anordnungen durchzuprobieren ist allerdings zu langsam.\\
+Eine solche Anordnung kann auch mit folgendem, der Lex-BFS sehr ähnlichen, Algorithmus von M. Habib, R. McConnell, C. Paul und L. Viennot geschehen, der diesen Test bei richtiger Implementierung in Linearzeit durchführen kann:
 
 \begin{lstlisting}
-
-
+//Lebensgraphen-Test
+//Ermittlung einer Cliquenkette
+//Eingabe: Graph G = (V,E), Reihenfolge PI der Knoten V
+//Ausgabe: Eine Cliquenkette L
+begin
+  Sei B=(X,F) ein Cliquenbaum der mit dem vorangegangenen Algorithmus gefunden wurde;
+  Sei X die Menge der maximalen Cliquen, X = {C1, C2, ... Cn};
+  Sei L eine Liste von Mengen, L := ( X );
+  Sei PIVOTS ein leerer Stack;
+  Sei USED ein Array;
+  
+  while L enthält eine Menge Xc mit |Xc| > 1 do begin
+    Sei b eine Menge;
+    if PIVOTS == { } then begin
+      Sei Cl die Clique in Xc mit der größten Nummer;
+      Ersetze Xc durch Xc\{Cl}, {Cl} in L;
+      b := {Cl};
+    end else begin
+      while USED[PIVOTS.top()] == TRUE do
+        PIVOTS.pop();
+      x := PIVOTS.top();
+      USED[x] := TRUE;
+      b := { W aus X | x in W };
+      Seien Xa und Xb die erste bzw letzte Menge in L,
+         die eine Klasse enthält die auch in b vorhanden ist;
+      Ersetze Xa durch Xa\b, (Xa geschnitten b)
+        und Xb durch (Xb geschnitten b), Xb\b;
+    end;
+    foreach (Ci,Cj) in F mit Ci in b und Cj nicht in b do begin
+      PIVOTS += (Ci geschnitten Cj);
+      entferne (Ci,Cj) aus F;
+    end;
+  end;
+  
+  foreach v in V do begin
+    if Cliquen, in denen v vorkommt 
+       sind nicht aufeinanderfolgend in L then
+       return "G ist kein Lebensgraph";
+  end;
+  //L ist nun die Cliquenkette
+  return "G ist ein Lebensgraph";
+end.
 \end{lstlisting}
 
 Ist diese Anordnung möglich, so handelt es sich um einen Lebensgraphen, andernfalls nicht.
@@ -410,6 +473,52 @@ Eine Visualisierung:
 \caption{Der Graph aus Beispiel 3.}
 \end{figure}
 \end{center}
+
+\subsubsection*{Beispiel 4}
+Ein weiteres Beisiel.\footnote{Dieses Beispiel lässt sich auch in der Datei 6.in wiederfinden.}
+
+{\small
+\lstinputlisting{../Aufgabe_2/6.in}
+}
+
+Auch dieser Graph enthält ein Loch.\footnote{Diese Ausgabe lässt sich auch in der Datei 6.out wiederfinden.}:
+
+{\small
+\lstinputlisting{../Aufgabe_2/6.out}
+}
+
+Mein Programm benötigt für die Berechnung dieses Beispiels weniger als eine Sekunde.
+
+\subsubsection*{Beispiel 5}
+Ein weiteres Beisiel für einen Lebensgraphen.\footnote{Dieses Beispiel lässt sich auch in der Datei 7.in wiederfinden.}
+
+{\small
+\lstinputlisting{../Aufgabe_2/7.in}
+}
+
+Die gefundene Belegung mit den Intervallen\footnote{Diese Ausgabe lässt sich auch in der Datei 7.out wiederfinden.}:
+
+{\small
+\lstinputlisting{../Aufgabe_2/7.out}
+}
+
+Mein Programm benötigt für die Berechnung dieses Beispiels weniger als eine Sekunde.
+
+\subsubsection*{Beispiel 5}
+Ein weiteres Beisiel für einen Lebensgraphen.\footnote{Dieses Beispiel lässt sich auch in der Datei 3.in wiederfinden.}
+
+{\small
+\lstinputlisting{../Aufgabe_2/3.in}
+}
+
+Die gefundene Belegung mit den Intervallen\footnote{Diese Ausgabe lässt sich auch in der Datei 3.out wiederfinden.}:
+
+{\small
+\lstinputlisting{../Aufgabe_2/3.out}
+}
+
+Mein Programm benötigt für die Berechnung dieses Beispiels weniger als eine Sekunde.
+
 
 \subsection{Quelltext}
 

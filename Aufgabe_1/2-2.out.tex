@@ -1,0 +1,210 @@
+Water always optimally (to save water)...
+And you'll find 73 pieces of coal and 3 pieces of watered coal
+\\
+\begin{tikzpicture}
+\tikzset{square matrix/.style={
+matrix of nodes,
+column sep=-\pgflinewidth, row sep=-\pgflinewidth,
+nodes={draw,
+minimum height=#1,
+anchor=center,
+text width=#1,
+align=center,
+inner sep=0pt
+},
+},
+square matrix/.default=1.2cm
+}
+\matrix[square matrix=1.4em] {
+|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+ &|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+ &|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+ &|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+ &|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+ &|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+ &|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+ &|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+ &|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+ &|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+ &|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+ &|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+ &|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+\\
+|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+ &|[fill=white]|\color[gray]{0.5}\texttt{WA}%
+ &|[fill=white]|\color[gray]{0.5}\texttt{WA}%
+ &|[fill=white]|\color[gray]{0.5}\texttt{WA}%
+ &|[fill=white]|\color[gray]{0.5}\texttt{WA}%
+ &|[fill=white]|\color[gray]{0.5}\texttt{WA}%
+ &|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+ &|[fill=white]|\color[gray]{0.5}\texttt{WA}%
+ &|[fill=white]|\color[gray]{0.5}\texttt{WA}%
+ &|[fill=white]|\color[gray]{0.5}\texttt{WA}%
+ &|[fill=white]|\color[gray]{0.5}\texttt{WA}%
+ &|[fill=white]|\color[gray]{0.5}\texttt{WA}%
+ &|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+\\
+|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+ &|[fill=white]|\color[gray]{0.5}\texttt{WA}%
+ &|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+ &|[fill=cyan]|\color[rgb]{1,0,0}\textbf{\texttt{07}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=cyan]|\color[rgb]{0,0,0}\textbf{\texttt{03}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=white]|\color[gray]{0.5}\texttt{WA}%
+ &|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+\\
+|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+ &|[fill=white]|\color[gray]{0.5}\texttt{WA}%
+ &|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+ &|[fill=cyan]|\color[rgb]{1,0,0}\textbf{\texttt{06}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=white]|\color[gray]{0.5}\texttt{WA}%
+ &|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+\\
+|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+ &|[fill=white]|\color[gray]{0.5}\texttt{WA}%
+ &|[fill=cyan]|\color[rgb]{0,0,0}\textbf{\texttt{05}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=white]|\color[gray]{0.5}\texttt{WA}%
+ &|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+\\
+|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+ &|[fill=white]|\color[gray]{0.5}\texttt{WA}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=white]|\color[gray]{0.5}\texttt{WA}%
+ &|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+\\
+|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+ &|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+ &|[fill=cyan]|\color[rgb]{0,0,0}\textbf{\texttt{02}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=cyan]|\color[rgb]{1,0,0}\textbf{\texttt{04}}%
+ &|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+ &|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+\\
+|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+ &|[fill=white]|\color[gray]{0.5}\texttt{WA}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=white]|\color[gray]{0.5}\texttt{WA}%
+ &|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+\\
+|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+ &|[fill=white]|\color[gray]{0.5}\texttt{WA}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=white]|\color[gray]{0.5}\texttt{WA}%
+ &|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+\\
+|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+ &|[fill=white]|\color[gray]{0.5}\texttt{WA}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=white]|\color[gray]{0.5}\texttt{WA}%
+ &|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+\\
+|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+ &|[fill=white]|\color[gray]{0.5}\texttt{WA}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=cyan]|\color[rgb]{0,0,0}\textbf{\texttt{01}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=green]|\color[rgb]{0,0,0}\textbf{\texttt{CO}}%
+ &|[fill=white]|\color[gray]{0.5}\texttt{WA}%
+ &|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+\\
+|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+ &|[fill=white]|\color[gray]{0.5}\texttt{WA}%
+ &|[fill=white]|\color[gray]{0.5}\texttt{WA}%
+ &|[fill=white]|\color[gray]{0.5}\texttt{WA}%
+ &|[fill=white]|\color[gray]{0.5}\texttt{WA}%
+ &|[fill=white]|\color[gray]{0.5}\texttt{WA}%
+ &|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+ &|[fill=white]|\color[gray]{0.5}\texttt{WA}%
+ &|[fill=white]|\color[gray]{0.5}\texttt{WA}%
+ &|[fill=white]|\color[gray]{0.5}\texttt{WA}%
+ &|[fill=white]|\color[gray]{0.5}\texttt{WA}%
+ &|[fill=white]|\color[gray]{0.5}\texttt{WA}%
+ &|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+\\
+|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+ &|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+ &|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+ &|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+ &|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+ &|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+ &|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+ &|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+ &|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+ &|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+ &|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+ &|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+ &|[fill=green]|\color[gray]{0.75}\texttt{FO}%
+\\
+};
+\end{tikzpicture}\\
+\\
+Explanation:\\
+\colorbox{white}{\color[gray]{0.5}WA}  ---  EMPTY\\
+\colorbox{green}{\color[gray]{0.5}FO}  ---  BURNABLE\\
+\colorbox{white}{\color[rgb]{1,0,0}\textbf{BU}}  ---  BURNED\\
+\colorbox{white}{\color[rgb]{0,0,0}\textbf{CO}}  ---  COAL (doubly burned)\\
+\colorbox{cyan}{\#\#}  ---  WATERED at time \#\#\\
+Fields can have more than 1 state.

@@ -1,0 +1,28 @@
+Water always optimally (to save water)...
+And you'll find 0 pieces of coal and 0 pieces of watered coal
+\\
+\begin{tikzpicture}
+\tikzset{square matrix/.style={
+matrix of nodes,
+column sep=-\pgflinewidth, row sep=-\pgflinewidth,
+nodes={draw,
+minimum height=#1,
+anchor=center,
+text width=#1,
+align=center,
+inner sep=0pt
+},
+},
+square matrix/.default=1.2cm
+}
+\matrix[square matrix=1.4em] {
+};
+\end{tikzpicture}\\
+\\
+Explanation:\\
+\colorbox{white}{\color[gray]{0.5}WA}  ---  EMPTY\\
+\colorbox{green}{\color[gray]{0.5}FO}  ---  BURNABLE\\
+\colorbox{white}{\color[rgb]{1,0,0}\textbf{BU}}  ---  BURNED\\
+\colorbox{white}{\color[rgb]{0,0,0}\textbf{CO}}  ---  COAL (doubly burned)\\
+\colorbox{cyan}{\#\#}  ---  WATERED at time \#\#\\
+Fields can have more than 1 state.
